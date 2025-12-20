@@ -8,6 +8,9 @@ import dotenv from "dotenv";
 import connectDB from "./config/connectDB.js";
 import { SESSION_SECRET } from "./config/constants.js";
 import authRoutes from "./routes/authRoutes.js";
+import ambienceCategoryRoutes from "./routes/AmbienceCategoryRoutes.js";
+import feelingRoutes from "./routes/FeelingRoutes.js";
+import activityRoutes from "./routes/activityRoutes.js";
 import { scheduleCleanup } from "./utils/otpService.js";
 
 // Needed for __dirname in ES modules when using TypeScript
@@ -67,6 +70,9 @@ passport.deserializeUser(async (id: string, done) => {
 //                ROUTES
 // --------------------------------------
 app.use("/api/auth", authRoutes);
+app.use("/api/activity", activityRoutes);
+app.use("/api/ambience-categories", ambienceCategoryRoutes);
+app.use("/api/feelings", feelingRoutes);
 
 // Health check
 app.get("/health", (req: Request, res: Response) => {
@@ -95,6 +101,8 @@ app.get("/", (req: Request, res: Response) => {
     endpoints: {
       health: "/health",
       auth: "/api/auth",
+      ambienceCategories: "/api/ambience-categories",
+      feelings: "/api/feelings",
     },
   });
 });
@@ -132,7 +140,7 @@ if (
   process.env.NODE_ENV !== "production" ||
   !process.env.AWS_LAMBDA_FUNCTION_NAME
 ) {
-  const PORT = process.env.PORT || 5000;
+  const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
   });
