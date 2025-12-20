@@ -1,6 +1,8 @@
 // emailService.ts
+
 import nodemailer from "nodemailer";
-import AWS from "aws-sdk";
+import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
+import { fromEnv } from "@aws-sdk/credential-providers";
 import {
   AWS_ACCESS_KEY_ID_SES,
   AWS_SECRET_ACCESS_KEY_SES,
@@ -9,19 +11,40 @@ import {
 } from "../config/constants.js";
 import * as emailTemplates from "./emailTemplates.js";
 
-// Configure AWS SES
-AWS.config.update({
-  accessKeyId: AWS_ACCESS_KEY_ID_SES!,
-  secretAccessKey: AWS_SECRET_ACCESS_KEY_SES!,
-  region: AWS_SES_REGION!,
-});
+const isSesConfigured =
+  Boolean(AWS_SES_REGION) &&
+  (Boolean(AWS_ACCESS_KEY_ID_SES && AWS_SECRET_ACCESS_KEY_SES) ||
+    Boolean(
+      process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
+    ));
 
-// Create Nodemailer + SES transporter
-const transporter = nodemailer.createTransport({
-  SES: new AWS.SES({
-    apiVersion: "2010-12-01",
-  }),
-} as any);
+const transporter = (() => {
+  if (!isSesConfigured) {
+    // Keep the app running even without SES env vars.
+    return nodemailer.createTransport({ jsonTransport: true });
+  }
+
+  const credentials =
+    AWS_ACCESS_KEY_ID_SES && AWS_SECRET_ACCESS_KEY_SES
+      ? {
+          accessKeyId: AWS_ACCESS_KEY_ID_SES,
+          secretAccessKey: AWS_SECRET_ACCESS_KEY_SES,
+        }
+      : fromEnv();
+
+  const sesClient = new SESv2Client({
+    region: AWS_SES_REGION,
+    credentials,
+  });
+
+  // Nodemailer SES transport expects these exact keys.
+  return nodemailer.createTransport({
+    SES: {
+      sesClient,
+      SendEmailCommand,
+    },
+  } as any);
+})();
 
 export const sendWelcomeEmail = async (
   email: string,
@@ -37,7 +60,6 @@ export const sendWelcomeEmail = async (
 
     await transporter.sendMail(mailOptions);
     console.log("Welcome email sent successfully to:", email);
-
     return true;
   } catch (error) {
     console.error("Error sending welcome email:", error);
@@ -59,7 +81,6 @@ export const sendOtpEmail = async (
 
     await transporter.sendMail(mailOptions);
     console.log("OTP email sent successfully to:", email);
-
     return true;
   } catch (error) {
     console.error("Error sending OTP email:", error);

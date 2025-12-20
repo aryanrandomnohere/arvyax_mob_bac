@@ -5,6 +5,7 @@ export interface UserPreferences {
   dob: Date | null;
   isQnaFilled: boolean;
   lastUpdated: Date;
+  userDefaultAmbienceCategories: string[]; // Array of ambience category IDs
 }
 
 export interface RegisterUserDocument extends Document {

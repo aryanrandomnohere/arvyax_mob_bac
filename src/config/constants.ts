@@ -31,3 +31,8 @@ export const AWS_SECRET_ACCESS_KEY_SES: string | undefined =
 export const AWS_SES_REGION: string | undefined = process.env.AWS_SES_REGION;
 
 export const FROM_EMAIL: string | undefined = process.env.FROM_EMAIL;
+
+//preferences route just to fetch image, name, id and description aobut th epreference (select the ambience categories)
+//one route for describe you expeirce that fetches and makes an request to the ai model to generate the ambience based on the description provided by the user
+// now ther are some already present ambience and some user generate ambience which should come in recents
+// based on the prefernces user can select the themes for that sepecific preference lik for nature there will be river forest etc
