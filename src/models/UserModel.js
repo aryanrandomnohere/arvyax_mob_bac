@@ -2,6 +2,23 @@ import mongoose from "mongoose";
 
 const { Schema } = mongoose;
 
+const AmbienceSelectionSchema = new Schema(
+  {
+    categoryId: {
+      type: Schema.Types.ObjectId,
+      ref: "AmbienceCategory",
+      required: true,
+    },
+    themeId: {
+      type: Schema.Types.ObjectId,
+      default: null,
+    },
+  },
+  {
+    _id: false,
+  }
+);
+
 const PreferencesSchema = new Schema({
   gender: {
     type: String,
@@ -15,6 +32,18 @@ const PreferencesSchema = new Schema({
   isQnaFilled: {
     type: Boolean,
     default: false,
+  },
+  ambienceSelections: {
+    type: [AmbienceSelectionSchema],
+    default: [],
+    validate: {
+      validator: (arr) => !arr || arr.length <= 1,
+      message: "Only one ambience selection is allowed",
+    },
+    set: (arr) => {
+      if (!Array.isArray(arr)) return [];
+      return arr.length ? [arr[0]] : [];
+    },
   },
   lastUpdated: {
     type: Date,
@@ -43,6 +72,22 @@ const RegisterUserSchema = new Schema(
       unique: true,
       sparse: true,
     },
+    // Additional social provider IDs (optional, unique, sparse)
+    appleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    facebookId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    githubId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
     otp: {
       type: String,
     },
@@ -57,12 +102,23 @@ const RegisterUserSchema = new Schema(
       default: false,
     },
 
+    badges: {
+      type: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: "Badge",
+        },
+      ],
+      default: [],
+    },
+
     preferences: {
       type: PreferencesSchema,
       default: () => ({
         gender: "",
         dob: null,
         isQnaFilled: false,
+        ambienceSelections: [],
         lastUpdated: new Date(),
       }),
     },
@@ -73,7 +129,11 @@ const RegisterUserSchema = new Schema(
 );
 
 RegisterUserSchema.pre("save", async function () {
-  if (this.isModified("preferences")) {
+  const prefTouched = this.modifiedPaths().some(
+    (p) => p === "preferences" || p.startsWith("preferences.")
+  );
+
+  if (prefTouched) {
     this.preferences.lastUpdated = new Date();
   }
 });
@@ -93,6 +153,7 @@ RegisterUserSchema.methods.clearPreferences = function () {
     gender: "",
     dob: null,
     isQnaFilled: false,
+    ambienceSelections: [],
     lastUpdated: new Date(),
   };
   return this.save();

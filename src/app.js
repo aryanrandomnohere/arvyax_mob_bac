@@ -7,9 +7,11 @@ import dotenv from "dotenv";
 import connectDB from "./config/connectDB.js";
 import { SESSION_SECRET } from "./config/constants.js";
 import authRoutes from "./routes/authRoutes.js";
+import profileRoutes from "./routes/profileRoutes.js";
 import ambienceCategoryRoutes from "./routes/AmbienceCategoryRoutes.js";
 import feelingRoutes from "./routes/FeelingRoutes.js";
 import activityRoutes from "./routes/activityRoutes.js";
+import lifeContentRoutes from "./routes/lifeContentRoutes.js";
 import { scheduleCleanup } from "./utils/otpService.js";
 
 // Needed for __dirname in ES modules
@@ -67,9 +69,11 @@ passport.deserializeUser(async (id, done) => {
 //                ROUTES
 // --------------------------------------
 app.use("/api/auth", authRoutes);
+app.use("/api/", profileRoutes);
 app.use("/api/activity", activityRoutes);
 app.use("/api/ambience-categories", ambienceCategoryRoutes);
 app.use("/api/feelings", feelingRoutes);
+app.use("/api/life", lifeContentRoutes);
 
 app.get("/health", (req, res) => {
   res.json({
@@ -97,6 +101,7 @@ app.get("/", (req, res) => {
       auth: "/api/auth",
       ambienceCategories: "/api/ambience-categories",
       feelings: "/api/feelings",
+      life: "/api/life",
     },
   });
 });

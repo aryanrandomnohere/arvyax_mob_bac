@@ -12,7 +12,9 @@ import {
   verifyOtpSchema,
   loginSchema,
   onboardingSchema,
+  socialLoginSchema,
 } from "../validation/authSchemas.js";
+import { verifySocialLogin } from "../utils/socialAuthService.js";
 
 const router = Router();
 
@@ -105,7 +107,7 @@ router.post(
       }
 
       const token = jwt.sign({ user: { id: newUser._id } }, JWT_SECRET, {
-        expiresIn: "10h",
+        expiresIn: "1000h",
       });
 
       return res.json({
@@ -179,7 +181,7 @@ router.post(
       await user.save();
 
       const token = jwt.sign({ user: { id: user._id } }, JWT_SECRET, {
-        expiresIn: "10h",
+        expiresIn: "1000h",
       });
 
       try {
@@ -206,16 +208,18 @@ router.post(
   validateBody(onboardingSchema),
   tryCatch(async (req, res) => {
     try {
-      const { gender, dob } = req.body;
+      const { name, gender, dob } = req.body;
 
-      if (!gender || !dob)
-        return res.status(400).json({ error: "Gender and DOB required" });
+      if (!name || !gender || !dob) {
+        return res.status(400).json({ error: "Name, Gender and DOB required" });
+      }
 
       const userId = req.user.id;
       const user = await RegisterUser.findById(userId);
 
       if (!user) return res.status(404).json({ error: "User not found" });
 
+      user.username = String(name).trim();
       user.preferences.gender = gender;
       user.preferences.dob = new Date(dob);
       user.onboardingCompleted = true;
@@ -237,5 +241,93 @@ router.get("/ping", authMiddleware, async (req, res) => {
   ).padStart(2, "0")}-${String(now.getUTCDate()).padStart(2, "0")}`;
   return res.json({ active: true, dateKey });
 });
+
+// Unified Social Login endpoint
+router.post(
+  "/social-login",
+  validateBody(socialLoginSchema),
+  tryCatch(async (req, res) => {
+    const {
+      provider,
+      idToken,
+      accessToken,
+      email: fallbackEmail,
+      name: fallbackName,
+      photoUrl: fallbackPhoto,
+    } = req.body;
+
+    // Verify provider token and get normalized profile
+    const profile = await verifySocialLogin(provider, { idToken, accessToken });
+
+    const email = profile.email || fallbackEmail || "";
+    const name = profile.name || fallbackName || "User";
+    const photoUrl = profile.photoUrl || fallbackPhoto || "";
+
+    // Find or create user by provider ID or email
+    const query = [];
+    if (email) query.push({ email });
+    if (provider === "google") query.push({ googleId: profile.providerId });
+    if (provider === "apple") query.push({ appleId: profile.providerId });
+    if (provider === "facebook") query.push({ facebookId: profile.providerId });
+    if (provider === "github") query.push({ githubId: profile.providerId });
+
+    let user = await RegisterUser.findOne(
+      query.length ? { $or: query } : { _id: null }
+    );
+    let isNewUser = false;
+
+    if (!user) {
+      isNewUser = true;
+      user = new RegisterUser({
+        username: name,
+        email: email || undefined,
+        photoUrl,
+        isEmailVerified: true,
+      });
+    }
+
+    // Attach provider ID and update user info
+    if (provider === "google") user.googleId = profile.providerId;
+    if (provider === "apple") user.appleId = profile.providerId;
+    if (provider === "facebook") user.facebookId = profile.providerId;
+    if (provider === "github") user.githubId = profile.providerId;
+    if (email && !user.email) user.email = email;
+    if (name && (!user.username || user.username === "User"))
+      user.username = name;
+    // Always update photoUrl if provided (keeps profile picture current)
+    if (photoUrl) user.photoUrl = photoUrl;
+    user.isEmailVerified = true;
+
+    await user.save();
+
+    try {
+      await UserActivityDay.markActive(String(user._id));
+    } catch (err) {
+      console.warn("ACTIVITY MARK ERROR (SOCIAL LOGIN):", err);
+    }
+
+    const token = jwt.sign({ user: { id: user._id } }, JWT_SECRET, {
+      expiresIn: "1000h",
+    });
+
+    if (isNewUser && email && name) {
+      try {
+        await sendWelcomeEmail(email, name);
+      } catch (e) {
+        console.warn("WELCOME EMAIL ERROR (SOCIAL LOGIN):", e.message);
+      }
+    }
+
+    return res.json({
+      message: isNewUser
+        ? "User registered successfully"
+        : "User logged in successfully",
+      isNewUser,
+      token,
+      user,
+      provider,
+    });
+  })
+);
 
 export default router;

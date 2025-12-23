@@ -40,3 +40,11 @@ export const AWS_SECRET_ACCESS_KEY_SES = process.env.AWS_SECRET_ACCESS_KEY_SES;
 export const AWS_SES_REGION = process.env.AWS_SES_REGION;
 
 export const FROM_EMAIL = process.env.FROM_EMAIL;
+
+// Social OAuth configuration (optional but recommended)
+export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+export const APPLE_CLIENT_ID = process.env.APPLE_CLIENT_ID; // Service ID (for Sign in with Apple)
+export const FACEBOOK_APP_ID = process.env.FACEBOOK_APP_ID;
+export const FACEBOOK_APP_SECRET = process.env.FACEBOOK_APP_SECRET;
+export const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+export const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
