@@ -2,6 +2,35 @@ import mongoose from "mongoose";
 
 const { Schema } = mongoose;
 
+const AmbienceThemeSchema = new Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    imageUrl: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+
+    order: {
+      type: Number,
+      default: 0,
+    },
+  },
+  {
+    timestamps: false,
+  }
+);
+
 const AmbienceCategorySchema = new Schema(
   {
     name: {
@@ -19,6 +48,11 @@ const AmbienceCategorySchema = new Schema(
 
     images: {
       type: [String],
+      default: [],
+    },
+
+    themes: {
+      type: [AmbienceThemeSchema],
       default: [],
     },
 

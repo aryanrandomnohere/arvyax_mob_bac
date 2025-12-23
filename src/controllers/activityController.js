@@ -1,4 +1,5 @@
 import UserActivityDay from "../models/UserActivityDay.js";
+import { checkAndAssignBadges, formatBadge } from "../utils/badgeService.js";
 
 function utcDateKey(date) {
   const year = date.getUTCFullYear();
@@ -15,10 +16,20 @@ export const pingActivity = async (req, res) => {
     const now = new Date();
     await UserActivityDay.markActive(String(userId), now);
 
-    return res.json({
+    // Check and assign badges based on current streak
+    const newlyEarnedBadges = await checkAndAssignBadges(userId);
+
+    const response = {
       active: true,
       dateKey: utcDateKey(now),
-    });
+    };
+
+    // Include newly earned badges in response if any
+    if (newlyEarnedBadges.length > 0) {
+      response.newBadges = newlyEarnedBadges.map(formatBadge);
+    }
+
+    return res.json(response);
   } catch (err) {
     console.error("ACTIVITY PING ERROR:", err);
     return res.status(500).json({ error: "Server error" });

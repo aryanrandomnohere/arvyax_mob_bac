@@ -6,23 +6,29 @@
   "type": "module",
   "scripts": {
     "start": "node app.js",
-    "server": "nodemon app.js"
+    "server": "nodemon app.js",
+    "seed:badges": "node src/scripts/seedBadges.js"
   },
   "author": "revoltronx",
   "license": "MIT",
   "dependencies": {
     "@aws-sdk/client-sesv2": "^3.956.0",
     "@aws-sdk/credential-providers": "^3.956.0",
+    "aws-sdk": "^2.1693.0",
     "bcrypt": "^6.0.0",
+    "cloudinary": "^2.8.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2",
+    "express": "^4.22.1",
     "express-session": "^1.18.1",
+    "jose": "^5.10.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.14.0",
+    "mongoose": "^8.20.4",
+    "multer": "^2.0.2",
     "nodemailer": "^6.10.0",
     "passport": "^0.7.0",
     "serverless-http": "^3.2.0",
+    "uuid": "^13.0.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
