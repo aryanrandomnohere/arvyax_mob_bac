@@ -56,6 +56,7 @@ async function buildProfilePayload(userId) {
   return {
     id: String(user._id),
     name: String(user.username ?? ""),
+    nickname: String(user.preferences?.nickname ?? user.username ?? ""),
     email: user.email ?? null,
     phoneNumber: user.phoneNumber ?? null,
     photoUrl: user.photoUrl ?? null,
@@ -120,7 +121,9 @@ export const updateMyProfile = async (req, res) => {
   if (!user) return res.status(404).json({ error: "User not found" });
 
   if (typeof name === "string" && name.trim().length) {
-    user.username = name.trim();
+    const trimmed = name.trim();
+    user.username = trimmed;
+    user.preferences.nickname = trimmed;
   }
 
   if (typeof gender === "string") {

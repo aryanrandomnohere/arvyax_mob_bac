@@ -1,7 +1,11 @@
-const AmbienceCommand = require("../models/AmbienceCommand");
-const AWS = require("aws-sdk");
-const config = require("../config/constants");
-
+import AmbienceCommand from "../models/AmbienceCommand.js";
+import AWS from "aws-sdk";
+import {
+  R2_ACCESS_KEY_ID,
+  R2_SECRET_ACCESS_KEY,
+  R2_ENDPOINT,
+  R2_BUCKET_NAME,
+} from "../config/constants.js";
 /**
  * Ambience Command Controller
  * Handles BLE/timed commands for soundscape environments
@@ -10,15 +14,13 @@ const config = require("../config/constants");
 
 // Configure Cloudflare R2
 const s3 = new AWS.S3({
-  accessKeyId: config.R2_ACCESS_KEY_ID,
-  secretAccessKey: config.R2_SECRET_ACCESS_KEY,
-  endpoint: config.R2_ENDPOINT,
+  accessKeyId: R2_ACCESS_KEY_ID,
+  secretAccessKey: R2_SECRET_ACCESS_KEY,
+  endpoint: R2_ENDPOINT,
   region: "auto",
   signatureVersion: "v4",
   s3ForcePathStyle: true,
 });
-
-const R2_BUCKET_NAME = config.R2_BUCKET_NAME;
 
 // Helper function to upload to Cloudflare R2
 async function uploadToCloudflare(fileName, jsonData) {
@@ -88,7 +90,7 @@ function validateJsonStructure(jsonData) {
  * Get all ambience commands
  * Returns list of all environment command sets
  */
-exports.getAllAmbienceCommands = async (req, res) => {
+export const getAllAmbienceCommands = async (req, res) => {
   try {
     const commands = await AmbienceCommand.find().select(
       "environment mainDuration cloudflareUrl size totalCommands createdAt updatedAt"
@@ -103,7 +105,7 @@ exports.getAllAmbienceCommands = async (req, res) => {
       lastModified: cmd.updatedAt,
       cloudflareUrl:
         cmd.cloudflareUrl ||
-        `${config.R2_ENDPOINT.replace("https://", "https://pub-")}/${
+        `${R2_ENDPOINT.replace("https://", "https://pub-")}/${
           cmd.environment
         }_commands.json`,
     }));
@@ -127,7 +129,7 @@ exports.getAllAmbienceCommands = async (req, res) => {
  * Get ambience commands by environment
  * Returns commands for specific environment (e.g., rain, campfire)
  */
-exports.getAmbienceCommandsByEnvironment = async (req, res) => {
+export const getAmbienceCommandsByEnvironment = async (req, res) => {
   try {
     const environment = req.params.environment.toLowerCase();
     const command = await AmbienceCommand.findOne({ environment });
@@ -170,7 +172,7 @@ exports.getAmbienceCommandsByEnvironment = async (req, res) => {
  * Create new ambience commands
  * Creates command set for new environment
  */
-exports.createAmbienceCommands = async (req, res) => {
+export const createAmbienceCommands = async (req, res) => {
   try {
     const { environment, mainDuration, starting, middle, ending } = req.body;
 
@@ -257,7 +259,7 @@ exports.createAmbienceCommands = async (req, res) => {
  * Update ambience commands
  * Updates existing command set for environment
  */
-exports.updateAmbienceCommands = async (req, res) => {
+export const updateAmbienceCommands = async (req, res) => {
   try {
     const environment = req.params.environment.toLowerCase();
     const { mainDuration, starting, middle, ending } = req.body;
@@ -331,7 +333,7 @@ exports.updateAmbienceCommands = async (req, res) => {
  * Delete ambience commands
  * Removes command set from database and R2
  */
-exports.deleteAmbienceCommands = async (req, res) => {
+export const deleteAmbienceCommands = async (req, res) => {
   try {
     const environment = req.params.environment.toLowerCase();
 
@@ -373,7 +375,7 @@ exports.deleteAmbienceCommands = async (req, res) => {
  * Bulk upload ambience commands
  * Creates/updates multiple command sets at once
  */
-exports.bulkUploadAmbienceCommands = async (req, res) => {
+export const bulkUploadAmbienceCommands = async (req, res) => {
   try {
     const { commands } = req.body;
 
@@ -471,7 +473,7 @@ exports.bulkUploadAmbienceCommands = async (req, res) => {
  * Get ambience commands statistics
  * Returns overview of all command sets
  */
-exports.getAmbienceCommandsStats = async (req, res) => {
+export const getAmbienceCommandsStats = async (req, res) => {
   try {
     const totalEnvironments = await AmbienceCommand.countDocuments();
     const totalCommandsResult = await AmbienceCommand.aggregate([
@@ -511,7 +513,7 @@ exports.getAmbienceCommandsStats = async (req, res) => {
  * Search ambience commands
  * Searches by environment name and duration range
  */
-exports.searchAmbienceCommands = async (req, res) => {
+export const searchAmbienceCommands = async (req, res) => {
   try {
     const { q, minDuration, maxDuration } = req.query;
 
@@ -553,5 +555,3 @@ exports.searchAmbienceCommands = async (req, res) => {
     });
   }
 };
-
-module.exports = exports;

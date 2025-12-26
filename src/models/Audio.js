@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 /**
  * Audio Model
@@ -17,4 +17,6 @@ const AudioSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("Audio", AudioSchema);
+const Audio = mongoose.model("Audio", AudioSchema);
+
+export default Audio;

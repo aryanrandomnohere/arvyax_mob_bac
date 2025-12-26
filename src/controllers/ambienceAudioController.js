@@ -1,7 +1,12 @@
-const AmbienceAudio = require("../models/AmbienceAudio");
-const AWS = require("aws-sdk");
-const config = require("../config/constants");
-const { v4: uuidv4 } = require("uuid");
+import AmbienceAudio from "../models/AmbienceAudio.js";
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+  ListObjectsV2Command,
+} from "@aws-sdk/client-s3";
+import * as config from "../config/constants.js";
+import { v4 as uuidv4 } from "uuid";
 
 /**
  * Ambience Audio Controller
@@ -9,18 +14,20 @@ const { v4: uuidv4 } = require("uuid");
  * Includes categories and tags (rain, forest, campfire, etc.)
  */
 
-// Cloudflare R2 Configuration
-const r2 = new AWS.S3({
-  accessKeyId: config.R2_ACCESS_KEY_ID,
-  secretAccessKey: config.R2_SECRET_ACCESS_KEY,
+// Cloudflare R2 Configuration (AWS SDK v3)
+const r2 = new S3Client({
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID || config.R2_ACCESS_KEY_ID,
+    secretAccessKey:
+      process.env.R2_SECRET_ACCESS_KEY || config.R2_SECRET_ACCESS_KEY,
+  },
   region: "auto",
-  endpoint: config.R2_ENDPOINT,
-  s3ForcePathStyle: true,
-  signatureVersion: "v4",
+  endpoint: process.env.R2_ENDPOINT || config.R2_ENDPOINT,
+  forcePathStyle: true,
 });
 
-const BUCKET_NAME = config.R2_BUCKET_NAME;
-const PUBLIC_R2_URL = config.R2_PUBLIC_URL;
+const BUCKET_NAME = process.env.R2_BUCKET_NAME || config.R2_BUCKET_NAME;
+const PUBLIC_R2_URL = process.env.R2_PUBLIC_URL || config.R2_PUBLIC_URL;
 
 // Helper function to upload file to R2
 const uploadToR2 = async (
@@ -31,17 +38,17 @@ const uploadToR2 = async (
 ) => {
   const key = `${folder}/${Date.now()}-${fileName}`;
 
-  const params = {
+  const command = new PutObjectCommand({
     Bucket: BUCKET_NAME,
     Key: key,
     Body: fileBuffer,
     ContentType: mimeType,
     ACL: "public-read",
-  };
+  });
 
-  const result = await r2.upload(params).promise();
+  const result = await r2.send(command);
   return {
-    key: key,
+    key,
     url: `${PUBLIC_R2_URL}/${key}`,
     etag: result.ETag,
   };
@@ -49,12 +56,11 @@ const uploadToR2 = async (
 
 // Helper function to delete file from R2
 const deleteFromR2 = async (key) => {
-  const params = {
+  const command = new DeleteObjectCommand({
     Bucket: BUCKET_NAME,
     Key: key,
-  };
-
-  await r2.deleteObject(params).promise();
+  });
+  await r2.send(command);
   return true;
 };
 
@@ -62,7 +68,7 @@ const deleteFromR2 = async (key) => {
  * Get all ambience audio files
  * Supports filtering by category and tags, with pagination
  */
-exports.getAllAmbienceAudios = async (req, res) => {
+export const getAllAmbienceAudios = async (req, res) => {
   try {
     const { category, tags, limit = 50, page = 1 } = req.query;
 
@@ -108,7 +114,7 @@ exports.getAllAmbienceAudios = async (req, res) => {
  * Upload ambience audio with file
  * Stores soundscape audio in R2
  */
-exports.uploadAmbienceAudio = async (req, res) => {
+export const uploadAmbienceAudio = async (req, res) => {
   try {
     const { title, duration, category, tags } = req.body;
     const audioFile = req.file;
@@ -170,7 +176,7 @@ exports.uploadAmbienceAudio = async (req, res) => {
  * Upload ambience audio via URL (legacy support)
  * For direct URL-based saves
  */
-exports.uploadAmbienceAudioUrl = async (req, res) => {
+export const uploadAmbienceAudioUrl = async (req, res) => {
   try {
     const { title, url, r2Key, duration, fileSize, category, tags } = req.body;
 
@@ -214,7 +220,7 @@ exports.uploadAmbienceAudioUrl = async (req, res) => {
  * Delete ambience audio
  * Removes audio from R2 and database
  */
-exports.deleteAmbienceAudio = async (req, res) => {
+export const deleteAmbienceAudio = async (req, res) => {
   try {
     const audio = await AmbienceAudio.findById(req.params.id);
     if (!audio) {
@@ -257,7 +263,7 @@ exports.deleteAmbienceAudio = async (req, res) => {
  * Force delete ambience audio
  * Deletes from database even if R2 deletion fails
  */
-exports.forceDeleteAmbienceAudio = async (req, res) => {
+export const forceDeleteAmbienceAudio = async (req, res) => {
   try {
     const audio = await AmbienceAudio.findById(req.params.id);
     if (!audio) {
@@ -292,7 +298,7 @@ exports.forceDeleteAmbienceAudio = async (req, res) => {
  * Update ambience audio details
  * Updates title, category, and tags
  */
-exports.updateAmbienceAudio = async (req, res) => {
+export const updateAmbienceAudio = async (req, res) => {
   try {
     const { title, category, tags } = req.body;
 
@@ -338,7 +344,7 @@ exports.updateAmbienceAudio = async (req, res) => {
  * Get ambience audio file info
  * Returns detailed audio information
  */
-exports.getAmbienceAudioInfo = async (req, res) => {
+export const getAmbienceAudioInfo = async (req, res) => {
   try {
     const audio = await AmbienceAudio.findById(req.params.id);
     if (!audio) {
@@ -362,7 +368,7 @@ exports.getAmbienceAudioInfo = async (req, res) => {
  * Get ambience audio categories
  * Returns list of all available categories
  */
-exports.getAmbienceCategories = async (req, res) => {
+export const getAmbienceCategories = async (req, res) => {
   try {
     const categories = await AmbienceAudio.distinct("category");
     res.json({
@@ -382,7 +388,7 @@ exports.getAmbienceCategories = async (req, res) => {
  * Get ambience audio tags
  * Returns list of all available tags
  */
-exports.getAmbienceTags = async (req, res) => {
+export const getAmbienceTags = async (req, res) => {
   try {
     const tags = await AmbienceAudio.distinct("tags");
     res.json({
@@ -402,7 +408,7 @@ exports.getAmbienceTags = async (req, res) => {
  * Test R2 connection
  * Validates cloud storage connectivity for ambience audio
  */
-exports.testR2Connection = async (req, res) => {
+export const testR2Connection = async (req, res) => {
   try {
     const params = {
       Bucket: BUCKET_NAME,
@@ -434,7 +440,7 @@ exports.testR2Connection = async (req, res) => {
  * Get storage statistics
  * Returns total count and size information
  */
-exports.getStorageStats = async (req, res) => {
+export const getStorageStats = async (req, res) => {
   try {
     const [totalAudios, totalSize] = await Promise.all([
       AmbienceAudio.countDocuments(),
@@ -464,5 +470,3 @@ exports.getStorageStats = async (req, res) => {
     });
   }
 };
-
-module.exports = exports;

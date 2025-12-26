@@ -1,6 +1,5 @@
 import nodemailer from "nodemailer";
-import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
-import { fromEnv } from "@aws-sdk/credential-providers";
+import AWS from "aws-sdk";
 import {
   AWS_ACCESS_KEY_ID_SES,
   AWS_SECRET_ACCESS_KEY_SES,
@@ -21,25 +20,39 @@ const transporter = (() => {
     return nodemailer.createTransport({ jsonTransport: true });
   }
 
-  const credentials =
-    AWS_ACCESS_KEY_ID_SES && AWS_SECRET_ACCESS_KEY_SES
-      ? {
-          accessKeyId: AWS_ACCESS_KEY_ID_SES,
-          secretAccessKey: AWS_SECRET_ACCESS_KEY_SES,
-        }
-      : fromEnv();
+  // Nodemailer SES transport expects an AWS SDK v2 SES client with `sendRawEmail()`.
+  // Passing an AWS SDK v3 client (SESv2Client) causes: TypeError: ses.sendRawEmail is not a function
+  try {
+    const sesOptions = {
+      region: AWS_SES_REGION,
+      apiVersion: "2010-12-01",
+    };
 
-  const sesClient = new SESv2Client({
-    region: AWS_SES_REGION,
-    credentials,
-  });
+    if (AWS_ACCESS_KEY_ID_SES && AWS_SECRET_ACCESS_KEY_SES) {
+      sesOptions.accessKeyId = AWS_ACCESS_KEY_ID_SES;
+      sesOptions.secretAccessKey = AWS_SECRET_ACCESS_KEY_SES;
+    }
 
-  return nodemailer.createTransport({
-    SES: {
-      sesClient,
-      SendEmailCommand,
-    },
-  });
+    const ses = new AWS.SES(sesOptions);
+
+    // Extra safety: if something is misconfigured, fall back instead of crashing the app.
+    if (typeof ses.sendRawEmail !== "function") {
+      console.warn(
+        "SES client missing sendRawEmail(); falling back to jsonTransport"
+      );
+      return nodemailer.createTransport({ jsonTransport: true });
+    }
+
+    return nodemailer.createTransport({
+      SES: { ses, aws: AWS },
+    });
+  } catch (err) {
+    console.warn(
+      "Failed to initialize SES transport; falling back to jsonTransport:",
+      err?.message || err
+    );
+    return nodemailer.createTransport({ jsonTransport: true });
+  }
 })();
 
 export const sendWelcomeEmail = async (email, username) => {

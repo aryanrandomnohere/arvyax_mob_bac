@@ -1,7 +1,8 @@
-const express = require("express");
+import express from "express";
+import multer from "multer";
+import * as audioController from "../controllers/audioController.js";
+
 const router = express.Router();
-const multer = require("multer");
-const audioController = require("../controllers/audioController");
 
 /**
  * Audio Routes
@@ -35,7 +36,7 @@ const upload = multer({
  * Returns: Array of all audio files with thumbnails
  * Usage: Load meditation library, breath work exercises
  */
-router.get("/get-audios", audioController.getAllAudios);
+router.get("/get-audios", audioController.getAllAudios); ///tested
 
 /**
  * POST /api/audios/upload-audio
@@ -52,7 +53,7 @@ router.post(
     { name: "thumbnail", maxCount: 1 },
   ]),
   audioController.uploadAudio
-);
+); ///tested
 
 /**
  * POST /api/audios/upload-audio-url
@@ -61,7 +62,7 @@ router.post(
  * Returns: Created audio metadata
  * Usage: Backward compatibility for direct URL saves
  */
-router.post("/upload-audio-url", audioController.uploadAudioUrl);
+router.post("/upload-audio-url", audioController.uploadAudioUrl); /// what is audio url huhh
 
 /**
  * DELETE /api/audios/delete-audio/:id
@@ -70,7 +71,7 @@ router.post("/upload-audio-url", audioController.uploadAudioUrl);
  * Params: id - MongoDB document ID
  * Returns: Success message with deletion status
  */
-router.delete("/delete-audio/:id", audioController.deleteAudio);
+router.delete("/delete-audio/:id", audioController.deleteAudio); ///tested
 
 /**
  * DELETE /api/audios/force-delete-audio/:id
@@ -79,7 +80,7 @@ router.delete("/delete-audio/:id", audioController.deleteAudio);
  * Params: id - MongoDB document ID
  * Returns: Success message
  */
-router.delete("/force-delete-audio/:id", audioController.forceDeleteAudio);
+router.delete("/force-delete-audio/:id", audioController.forceDeleteAudio); ///tested
 
 /**
  * PUT /api/audios/update-audio/:id
@@ -88,7 +89,7 @@ router.delete("/force-delete-audio/:id", audioController.forceDeleteAudio);
  * Params: id - MongoDB document ID
  * Returns: Updated audio object
  */
-router.put("/update-audio/:id", audioController.updateAudio);
+router.put("/update-audio/:id", audioController.updateAudio); ///tested
 
 /**
  * GET /api/audios/audio-info/:id
@@ -96,13 +97,13 @@ router.put("/update-audio/:id", audioController.updateAudio);
  * Params: id - MongoDB document ID
  * Returns: Complete audio object with all metadata
  */
-router.get("/audio-info/:id", audioController.getAudioInfo);
+router.get("/audio-info/:id", audioController.getAudioInfo); ///tested
 
 /**
  * GET /api/audios/test-r2-connection
  * Test R2 cloud storage connection
  * Returns: Connection status and bucket info
  */
-router.get("/test-r2-connection", audioController.testR2Connection);
+router.get("/test-r2-connection", audioController.testR2Connection); ///tested
 
-module.exports = router;
+export default router;

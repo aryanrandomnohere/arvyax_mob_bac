@@ -86,7 +86,9 @@ BookSchema.index({ author: 1, isActive: 1 });
 BookSchema.index({ isActive: 1, order: 1 });
 
 BookSchema.statics.getActiveBooks = function () {
-  return this.find({ isActive: true }).sort({ order: 1, createdAt: -1 });
+  return this.find({
+    $or: [{ isActive: true }, { isActive: { $exists: false } }],
+  }).sort({ order: 1, createdAt: -1 });
 };
 
 BookSchema.statics.getBooksByGenre = function (
@@ -95,12 +97,16 @@ BookSchema.statics.getBooksByGenre = function (
   excludeId = null
 ) {
   const query = {
-    genre: genre,
-    isActive: true,
+    $and: [
+      { genre: genre },
+      {
+        $or: [{ isActive: true }, { isActive: { $exists: false } }],
+      },
+    ],
   };
 
   if (excludeId) {
-    query._id = { $ne: excludeId };
+    query.$and.push({ _id: { $ne: excludeId } });
   }
 
   return this.find(query).limit(limit).sort({ order: 1, createdAt: -1 });
@@ -108,12 +114,16 @@ BookSchema.statics.getBooksByGenre = function (
 
 BookSchema.statics.getBooksByAuthor = function (author, excludeId = null) {
   const query = {
-    author,
-    isActive: true,
+    $and: [
+      { author },
+      {
+        $or: [{ isActive: true }, { isActive: { $exists: false } }],
+      },
+    ],
   };
 
   if (excludeId) {
-    query._id = { $ne: excludeId };
+    query.$and.push({ _id: { $ne: excludeId } });
   }
 
   return this.find(query).sort({ order: 1, createdAt: -1 });

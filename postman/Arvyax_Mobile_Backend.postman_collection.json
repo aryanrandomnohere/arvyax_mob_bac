@@ -1,0 +1,2001 @@
+{
+  "info": {
+    "name": "Arvyax Mobile Backend",
+    "description": "Generated from arvyax_mobile_backend/src/app.js route mounts.\n\nNotes:\n- Set {{baseUrl}} to your running server (default http://localhost:3000).\n- Auth routes return OTP in response for testing; this collection auto-saves {{otp}} and {{token}} when possible.\n- Some routers are mounted at /api but use short paths (e.g. GET /api/get-audios).\n- For endpoints with :r2Key(*) in the URL path, set {{r2Key}} to a URL-encoded key (e.g. videos%2Ffoo.mp4).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "token", "value": "" },
+    { "key": "email", "value": "test@example.com" },
+    { "key": "username", "value": "Test User" },
+    { "key": "otp", "value": "" },
+    { "key": "month", "value": "2025-01" },
+    { "key": "date", "value": "2025-01-01" },
+    { "key": "feeling", "value": "calm" },
+    { "key": "categoryId", "value": "" },
+    { "key": "themeId", "value": "" },
+    { "key": "movieId", "value": "" },
+    { "key": "gameId", "value": "" },
+    { "key": "bookId", "value": "" },
+    { "key": "yogaSessionId", "value": "" },
+    { "key": "videoId", "value": "" },
+    { "key": "hlsVideoId", "value": "" },
+    { "key": "audioId", "value": "" },
+    { "key": "ambienceAudioId", "value": "" },
+    { "key": "r2Key", "value": "" },
+    { "key": "sectionId", "value": "S21" },
+    { "key": "environment", "value": "rain" },
+    { "key": "sectionName", "value": "Asana" },
+    { "key": "cardId", "value": "" },
+    { "key": "subId", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/status",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "status"]
+            }
+          }
+        },
+        {
+          "name": "GET / (root)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth (/api/auth)",
+      "item": [
+        {
+          "name": "POST /api/auth/register (sends OTP)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "try {",
+                  "  const body = pm.response.json();",
+                  "  if (body.otp) pm.collectionVariables.set('otp', String(body.otp));",
+                  "} catch (e) {}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"email\": \"{{email}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/verify-otp (creates user, returns token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "try {",
+                  "  const body = pm.response.json();",
+                  "  if (body.token) pm.collectionVariables.set('token', body.token);",
+                  "} catch (e) {}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"otp\": \"{{otp}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/verify-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "verify-otp"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/login (sends OTP)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "try {",
+                  "  const body = pm.response.json();",
+                  "  if (body.otp) pm.collectionVariables.set('otp', String(body.otp));",
+                  "} catch (e) {}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/login/verify-otp (returns token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "try {",
+                  "  const body = pm.response.json();",
+                  "  if (body.token) pm.collectionVariables.set('token', body.token);",
+                  "} catch (e) {}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"otp\": \"{{otp}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login/verify-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login", "verify-otp"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/onboarding (auth)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{username}}\",\n  \"gender\": \"male\",\n  \"dob\": \"2000-01-01\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/onboarding",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "onboarding"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/auth/ping (auth)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/ping",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "ping"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/social-login (noauth)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"provider\": \"google\",\n  \"idToken\": \"<provider-id-token>\",\n  \"accessToken\": \"\",\n  \"email\": \"{{email}}\",\n  \"name\": \"{{username}}\",\n  \"photoUrl\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/social-login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "social-login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Profile (/api)",
+      "item": [
+        {
+          "name": "GET /api/profile (auth)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "profile"]
+            }
+          }
+        },
+        {
+          "name": "PUT /api/profile (auth)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{username}}\",\n  \"gender\": \"male\",\n  \"dob\": \"2000-01-01\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "profile"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/preferences/ambience (auth)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/preferences/ambience",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "preferences", "ambience"]
+            }
+          }
+        },
+        {
+          "name": "PUT /api/preferences/ambience (auth)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryId\": \"{{categoryId}}\",\n  \"themeId\": \"{{themeId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/preferences/ambience",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "preferences", "ambience"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Activity (/api/activity)",
+      "item": [
+        {
+          "name": "POST /api/activity/ping (auth)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{}" },
+            "url": {
+              "raw": "{{baseUrl}}/api/activity/ping",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "activity", "ping"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/activity/streak (auth)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/activity/streak",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "activity", "streak"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/activity/calendar (auth)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/activity/calendar?month={{month}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "activity", "calendar"],
+              "query": [{ "key": "month", "value": "{{month}}" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Feelings (/api/feelings)",
+      "item": [
+        {
+          "name": "POST /api/feelings/start (auth)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"feeling\": \"{{feeling}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/feelings/start",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "feelings", "start"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/feelings/end (auth)",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/feelings/end",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "feelings", "end"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/feelings/current (auth)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/feelings/current",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "feelings", "current"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/feelings/today (auth)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/feelings/today",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "feelings", "today"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/feelings/day?date=YYYY-MM-DD (auth)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/feelings/day?date={{date}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "feelings", "day"],
+              "query": [{ "key": "date", "value": "{{date}}" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ambience Categories (/api/ambience-categories)",
+      "item": [
+        {
+          "name": "GET /api/ambience-categories",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/ambience-categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ambience-categories"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/ambience-categories/themes",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/ambience-categories/themes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ambience-categories", "themes"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/ambience-categories/themes/:themeId",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/ambience-categories/themes/{{themeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ambience-categories", "themes", "{{themeId}}"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/ambience-categories/:id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/ambience-categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ambience-categories", "{{categoryId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Life Content (/api/life)",
+      "item": [
+        {
+          "name": "GET /api/life/movies",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/life/movies",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "life", "movies"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/life/movies/genre/:genre",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/life/movies/genre/action",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "life", "movies", "genre", "action"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/life/movies/:id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/life/movies/{{movieId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "life", "movies", "{{movieId}}"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/life/movies/:id/similar",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/life/movies/{{movieId}}/similar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "life", "movies", "{{movieId}}", "similar"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/life/games",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/life/games",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "life", "games"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/life/games/genre/:genre",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/life/games/genre/adventure",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "life", "games", "genre", "adventure"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/life/games/:id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/life/games/{{gameId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "life", "games", "{{gameId}}"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/life/books",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/life/books",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "life", "books"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/life/books/genre/:genre",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/life/books/genre/fiction",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "life", "books", "genre", "fiction"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/life/books/author/:author",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/life/books/author/John%20Doe",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "life", "books", "author", "John Doe"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/life/books/:id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/life/books/{{bookId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "life", "books", "{{bookId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audio (Mindfulness) (mounted at /api)",
+      "item": [
+        {
+          "name": "GET /api/get-audios",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/get-audios",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "get-audios"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/upload-audio (multipart)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "audioFile", "type": "file", "src": "" },
+                { "key": "thumbnail", "type": "file", "src": "" },
+                {
+                  "key": "title",
+                  "type": "text",
+                  "value": "Guided Meditation"
+                },
+                { "key": "duration", "type": "text", "value": "120" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload-audio",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload-audio"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/upload-audio-url",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Meditation via URL\",\n  \"url\": \"https://example.com/audio.mp3\",\n  \"thumbnailUrl\": \"https://example.com/thumb.jpg\",\n  \"r2Key\": \"audios/example.mp3\",\n  \"thumbnailR2Key\": \"audios/thumb.jpg\",\n  \"duration\": 120\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload-audio-url",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload-audio-url"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/delete-audio/:id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/delete-audio/{{audioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "delete-audio", "{{audioId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/force-delete-audio/:id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/force-delete-audio/{{audioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "force-delete-audio", "{{audioId}}"]
+            }
+          }
+        },
+        {
+          "name": "PUT /api/update-audio/:id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Title\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/update-audio/{{audioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "update-audio", "{{audioId}}"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/audio-info/:id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/audio-info/{{audioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "audio-info", "{{audioId}}"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/test-r2-connection (audio)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/test-r2-connection",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "test-r2-connection"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ambience Audio (mounted at /api)",
+      "item": [
+        {
+          "name": "GET /api/get-ambience-audios",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/get-ambience-audios",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "get-ambience-audios"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/upload-ambience-audio (multipart)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "audioFile", "type": "file", "src": "" },
+                { "key": "title", "type": "text", "value": "Rain" },
+                { "key": "category", "type": "text", "value": "nature" },
+                { "key": "tags", "type": "text", "value": "rain,forest" },
+                { "key": "duration", "type": "text", "value": "300" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload-ambience-audio",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload-ambience-audio"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/upload-ambience-audio-url",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Ambience via URL\",\n  \"url\": \"https://example.com/ambience.mp3\",\n  \"r2Key\": \"ambience/example.mp3\",\n  \"duration\": 300,\n  \"category\": \"nature\",\n  \"tags\": [\"rain\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload-ambience-audio-url",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload-ambience-audio-url"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/delete-ambience-audio/:id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/delete-ambience-audio/{{ambienceAudioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "delete-ambience-audio", "{{ambienceAudioId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/force-delete-ambience-audio/:id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/force-delete-ambience-audio/{{ambienceAudioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "force-delete-ambience-audio",
+                "{{ambienceAudioId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT /api/update-ambience-audio/:id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Ambience\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/update-ambience-audio/{{ambienceAudioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "update-ambience-audio", "{{ambienceAudioId}}"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/ambience-audio-info/:id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/ambience-audio-info/{{ambienceAudioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ambience-audio-info", "{{ambienceAudioId}}"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/ambience-categories",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/ambience-categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ambience-categories"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/ambience-tags",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/ambience-tags",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ambience-tags"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/test-r2-connection (ambience)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/test-r2-connection",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "test-r2-connection"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/storage-stats",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/storage-stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "storage-stats"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ambience Commands (/api/ambience-commands)",
+      "item": [
+        {
+          "name": "GET /api/ambience-commands",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/ambience-commands",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ambience-commands"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/ambience-commands/:environment",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/ambience-commands/{{environment}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ambience-commands", "{{environment}}"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/ambience-commands",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"environment\": \"{{environment}}\",\n  \"mainDuration\": 300,\n  \"starting\": [{\"second\": 0, \"value\": \"0x01\"}],\n  \"middle\": [{\"second\": 10, \"value\": \"0x02\"}],\n  \"ending\": [{\"second\": 290, \"value\": \"0x03\"}]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ambience-commands",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ambience-commands"]
+            }
+          }
+        },
+        {
+          "name": "PUT /api/ambience-commands/:environment",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mainDuration\": 300,\n  \"starting\": [],\n  \"middle\": [],\n  \"ending\": []\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ambience-commands/{{environment}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ambience-commands", "{{environment}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/ambience-commands/:environment",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/ambience-commands/{{environment}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ambience-commands", "{{environment}}"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/ambience-commands/bulk-upload",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"commands\": [\n    {\n      \"environment\": \"rain\",\n      \"mainDuration\": 300,\n      \"starting\": [],\n      \"middle\": [],\n      \"ending\": []\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ambience-commands/bulk-upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ambience-commands", "bulk-upload"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/ambience-commands/stats/overview",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/ambience-commands/stats/overview",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ambience-commands", "stats", "overview"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/ambience-commands/search/query?q=rain",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/ambience-commands/search/query?q=rain",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ambience-commands", "search", "query"],
+              "query": [{ "key": "q", "value": "rain" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Yoga Practices (mounted at /api)",
+      "item": [
+        {
+          "name": "GET /api/get-yoga-practices",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/get-yoga-practices",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "get-yoga-practices"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/migrate-audio-ids",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/migrate-audio-ids",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "migrate-audio-ids"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/upload-practice-image",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Mountain Pose\",\n  \"repCount\": \"10\",\n  \"section\": \"{{sectionName}}\",\n  \"url\": \"https://example.com/image.jpg\",\n  \"cloudinaryId\": \"dummy\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload-practice-image",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload-practice-image"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/add-section",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sectionName\": \"New Section\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/add-section",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "add-section"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/delete-practice-image/:sectionName/:cardId",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/delete-practice-image/{{sectionName}}/{{cardId}}",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "delete-practice-image",
+                "{{sectionName}}",
+                "{{cardId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT /api/update-card/:sectionName/:cardId",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Pose\",\n  \"repCount\": \"12\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/update-card/{{sectionName}}/{{cardId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "update-card", "{{sectionName}}", "{{cardId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/delete-section/:sectionName",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/delete-section/{{sectionName}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "delete-section", "{{sectionName}}"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/upload-card-image/:sectionName/:cardId",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://example.com/variation.jpg\",\n  \"cloudinaryId\": \"dummy\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload-card-image/{{sectionName}}/{{cardId}}",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "upload-card-image",
+                "{{sectionName}}",
+                "{{cardId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/delete-card-image/:sectionName/:cardId/:subId",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/delete-card-image/{{sectionName}}/{{cardId}}/{{subId}}",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "delete-card-image",
+                "{{sectionName}}",
+                "{{cardId}}",
+                "{{subId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT /api/update-card-image/:sectionName/:cardId/:subId",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://example.com/new-variation.jpg\",\n  \"cloudinaryId\": \"dummy\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/update-card-image/{{sectionName}}/{{cardId}}/{{subId}}",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "update-card-image",
+                "{{sectionName}}",
+                "{{cardId}}",
+                "{{subId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Yoga Sessions (mounted at /api)",
+      "item": [
+        {
+          "name": "GET /api/get-yoga-sessions",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/get-yoga-sessions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "get-yoga-sessions"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/get-yoga-sessions/:sectionId",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/get-yoga-sessions/{{sectionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "get-yoga-sessions", "{{sectionId}}"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/upload-yoga-session (multipart)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "jsonFile", "type": "file", "src": "" },
+                { "key": "title", "type": "text", "value": "Morning Flow" },
+                {
+                  "key": "sectionId",
+                  "type": "text",
+                  "value": "{{sectionId}}"
+                },
+                { "key": "uniqueId", "type": "text", "value": "U001" },
+                { "key": "cardId", "type": "text", "value": "C001" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload-yoga-session",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload-yoga-session"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/upload-yoga-session-url",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Session via URL\",\n  \"sectionId\": \"{{sectionId}}\",\n  \"uniqueId\": \"U001\",\n  \"cardId\": \"C001\",\n  \"url\": \"https://example.com/session.json\",\n  \"r2Key\": \"sessions/example.json\",\n  \"fileSize\": 1234\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload-yoga-session-url",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload-yoga-session-url"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/delete-yoga-session/:id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/delete-yoga-session/{{yogaSessionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "delete-yoga-session", "{{yogaSessionId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/force-delete-yoga-session/:id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/force-delete-yoga-session/{{yogaSessionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "force-delete-yoga-session", "{{yogaSessionId}}"]
+            }
+          }
+        },
+        {
+          "name": "PUT /api/update-yoga-session/:id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Session\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/update-yoga-session/{{yogaSessionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "update-yoga-session", "{{yogaSessionId}}"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/yoga-session-info/:id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/yoga-session-info/{{yogaSessionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "yoga-session-info", "{{yogaSessionId}}"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/test-r2-connection (yoga sessions)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/test-r2-connection",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "test-r2-connection"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cloudflare R2 Images (mounted at /api)",
+      "item": [
+        {
+          "name": "POST /api/upload-image (multipart)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "image", "type": "file", "src": "" },
+                { "key": "title", "type": "text", "value": "Pose Image" },
+                { "key": "category", "type": "text", "value": "general" },
+                { "key": "tags", "type": "text", "value": "yoga,pose" },
+                { "key": "isPublic", "type": "text", "value": "true" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload-image",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload-image"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/upload-r2-image (alias)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "image", "type": "file", "src": "" },
+                { "key": "title", "type": "text", "value": "Pose Image" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload-r2-image",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload-r2-image"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/upload-images (multipart, up to 10)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "images", "type": "file", "src": "" },
+                { "key": "images", "type": "file", "src": "" },
+                { "key": "category", "type": "text", "value": "general" },
+                { "key": "tags", "type": "text", "value": "yoga" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload-images",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload-images"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/upload-r2-images (alias)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "images", "type": "file", "src": "" },
+                { "key": "category", "type": "text", "value": "general" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload-r2-images",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload-r2-images"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/save-image-url",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Image via URL\",\n  \"url\": \"https://example.com/image.jpg\",\n  \"r2Key\": \"images/example.jpg\",\n  \"category\": \"general\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/save-image-url",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "save-image-url"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/upload-r2-image-url (alias)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Image via URL\",\n  \"url\": \"https://example.com/image.jpg\",\n  \"r2Key\": \"images/example.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload-r2-image-url",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload-r2-image-url"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/delete-image/:r2Key(*)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/delete-image/{{r2Key}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "delete-image", "{{r2Key}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/delete-r2-image/:r2Key(*) (alias)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/delete-r2-image/{{r2Key}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "delete-r2-image", "{{r2Key}}"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/list",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/list",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "list"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/get-r2-images (alias)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/get-r2-images",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "get-r2-images"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/info",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/info",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "info"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/r2-images-info (alias)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/r2-images-info",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "r2-images-info"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/search?query=pose",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/search?query=pose",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search"],
+              "query": [{ "key": "query", "value": "pose" }]
+            }
+          }
+        },
+        {
+          "name": "GET /api/search-r2-images (alias)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/search-r2-images?query=pose",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search-r2-images"],
+              "query": [{ "key": "query", "value": "pose" }]
+            }
+          }
+        },
+        {
+          "name": "GET /api/stats",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stats"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/r2-image-stats (alias)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/r2-image-stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "r2-image-stats"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cloudflare R2 Videos (mounted at /api)",
+      "item": [
+        {
+          "name": "GET /api/get-r2-videos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "try {",
+                  "  const body = pm.response.json();",
+                  "  if (Array.isArray(body) && body[0] && body[0]._id) pm.collectionVariables.set('videoId', body[0]._id);",
+                  "} catch (e) {}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/get-r2-videos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "get-r2-videos"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/get-videos (alias)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/get-videos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "get-videos"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/upload-r2-video (multipart)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "video", "type": "file", "src": "" },
+                { "key": "title", "type": "text", "value": "Demo Video" },
+                {
+                  "key": "description",
+                  "type": "text",
+                  "value": "Uploaded via Postman"
+                },
+                { "key": "tags", "type": "text", "value": "demo" },
+                { "key": "isPublic", "type": "text", "value": "true" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload-r2-video",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload-r2-video"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/upload-video (alias)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "video", "type": "file", "src": "" },
+                { "key": "title", "type": "text", "value": "Demo Video" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload-video",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload-video"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/upload-r2-video-url",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Video via URL\",\n  \"url\": \"https://example.com/video.mp4\",\n  \"r2Key\": \"videos/example.mp4\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload-r2-video-url",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload-r2-video-url"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/delete-r2-video/:id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/delete-r2-video/{{videoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "delete-r2-video", "{{videoId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/delete-video/:id (alias)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/delete-video/{{videoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "delete-video", "{{videoId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/cleanup-r2/:r2Key(*)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/cleanup-r2/{{r2Key}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cleanup-r2", "{{r2Key}}"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/check-r2-sync",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/check-r2-sync",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "check-r2-sync"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/r2-bucket-info",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/r2-bucket-info",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "r2-bucket-info"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/r2-video-stats",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/r2-video-stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "r2-video-stats"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/search-r2-videos?query=demo",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/search-r2-videos?query=demo",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search-r2-videos"],
+              "query": [{ "key": "query", "value": "demo" }]
+            }
+          }
+        },
+        {
+          "name": "PUT /api/update-r2-video/:id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Video Title\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/update-r2-video/{{videoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "update-r2-video", "{{videoId}}"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/fix-video-urls",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/fix-video-urls",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "fix-video-urls"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/get-s3-videos (legacy alias)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/get-s3-videos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "get-s3-videos"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/upload-s3-video (legacy alias)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "video", "type": "file", "src": "" },
+                { "key": "title", "type": "text", "value": "S3-named upload" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload-s3-video",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload-s3-video"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/upload-s3-video-url (legacy alias)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"S3 named URL\",\n  \"url\": \"https://example.com/video.mp4\",\n  \"r2Key\": \"videos/example.mp4\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload-s3-video-url",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload-s3-video-url"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/delete-s3-video/:id (legacy alias)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/delete-s3-video/{{videoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "delete-s3-video", "{{videoId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/cleanup-s3/:s3Key(*) (legacy alias)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/cleanup-s3/{{r2Key}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cleanup-s3", "{{r2Key}}"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/check-s3-sync (legacy alias)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/check-s3-sync",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "check-s3-sync"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/s3-bucket-info (legacy alias)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/s3-bucket-info",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "s3-bucket-info"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "HLS Videos (mounted at /api)",
+      "item": [
+        {
+          "name": "POST /api/upload-hls-video (multipart)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "video", "type": "file", "src": "" },
+                { "key": "title", "type": "text", "value": "HLS Demo" },
+                {
+                  "key": "description",
+                  "type": "text",
+                  "value": "Convert to HLS"
+                },
+                { "key": "tags", "type": "text", "value": "hls,demo" },
+                { "key": "isPublic", "type": "text", "value": "true" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload-hls-video",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload-hls-video"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/get-hls-videos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "try {",
+                  "  const body = pm.response.json();",
+                  "  if (Array.isArray(body) && body[0] && body[0]._id) pm.collectionVariables.set('hlsVideoId', body[0]._id);",
+                  "} catch (e) {}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/get-hls-videos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "get-hls-videos"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/get-hls-video/:id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/get-hls-video/{{hlsVideoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "get-hls-video", "{{hlsVideoId}}"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/convert-to-hls/:id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/convert-to-hls/{{hlsVideoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "convert-to-hls", "{{hlsVideoId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/delete-hls-video/:id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/delete-hls-video/{{hlsVideoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "delete-hls-video", "{{hlsVideoId}}"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/hls-video-stats",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/hls-video-stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hls-video-stats"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/search-hls-videos?query=hls",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/search-hls-videos?query=hls",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search-hls-videos"],
+              "query": [{ "key": "query", "value": "hls" }]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

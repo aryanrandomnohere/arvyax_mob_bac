@@ -1,6 +1,12 @@
-const YogaSession = require("../models/YogaSession");
-const AWS = require("aws-sdk");
-const config = require("../config/constants");
+import YogaSession from "../models/YogaSession.js";
+import AWS from "aws-sdk";
+import {
+  R2_ACCESS_KEY_ID,
+  R2_SECRET_ACCESS_KEY,
+  R2_ENDPOINT,
+  R2_BUCKET_NAME,
+  R2_PUBLIC_URL,
+} from "../config/constants.js";
 
 /**
  * Yoga Session Controller
@@ -10,16 +16,16 @@ const config = require("../config/constants");
 
 // Cloudflare R2 Configuration
 const r2 = new AWS.S3({
-  accessKeyId: config.R2_ACCESS_KEY_ID,
-  secretAccessKey: config.R2_SECRET_ACCESS_KEY,
+  accessKeyId: R2_ACCESS_KEY_ID,
+  secretAccessKey: R2_SECRET_ACCESS_KEY,
   region: "auto",
-  endpoint: config.R2_ENDPOINT,
+  endpoint: R2_ENDPOINT,
   s3ForcePathStyle: true,
   signatureVersion: "v4",
 });
 
-const BUCKET_NAME = config.R2_BUCKET_NAME;
-const PUBLIC_R2_URL = config.R2_PUBLIC_URL;
+const BUCKET_NAME = R2_BUCKET_NAME;
+const PUBLIC_R2_URL = R2_PUBLIC_URL;
 
 // Helper function to upload JSON to R2
 const uploadToR2 = async (
@@ -64,7 +70,7 @@ const deleteFromR2 = async (key) => {
  * Get all yoga sessions
  * Returns list of all available session JSONs
  */
-exports.getAllYogaSessions = async (req, res) => {
+export const getAllYogaSessions = async (req, res) => {
   try {
     const yogaSessions = await YogaSession.find().sort({ createdAt: -1 });
     console.log(`Retrieved ${yogaSessions.length} yoga sessions from database`);
@@ -82,7 +88,7 @@ exports.getAllYogaSessions = async (req, res) => {
  * Get yoga sessions by section (e.g., Asana, Meditation)
  * Filters sessions based on section ID
  */
-exports.getYogaSessionsBySection = async (req, res) => {
+export const getYogaSessionsBySection = async (req, res) => {
   try {
     const yogaSessions = await YogaSession.find({
       sectionId: req.params.sectionId,
@@ -104,7 +110,7 @@ exports.getYogaSessionsBySection = async (req, res) => {
  * Upload yoga session JSON file
  * Stores session data in R2 and creates database entry
  */
-exports.uploadYogaSession = async (req, res) => {
+export const uploadYogaSession = async (req, res) => {
   try {
     const { title, sectionId, uniqueId, cardId } = req.body;
     const jsonFile = req.file;
@@ -169,7 +175,7 @@ exports.uploadYogaSession = async (req, res) => {
  * Upload yoga session via URL (legacy support)
  * For direct URL-based saves
  */
-exports.uploadYogaSessionUrl = async (req, res) => {
+export const uploadYogaSessionUrl = async (req, res) => {
   try {
     const { title, sectionId, uniqueId, cardId, url, r2Key, fileSize } =
       req.body;
@@ -210,7 +216,7 @@ exports.uploadYogaSessionUrl = async (req, res) => {
  * Delete yoga session
  * Removes session from both R2 and database
  */
-exports.deleteYogaSession = async (req, res) => {
+export const deleteYogaSession = async (req, res) => {
   try {
     const yogaSession = await YogaSession.findById(req.params.id);
     if (!yogaSession) {
@@ -256,7 +262,7 @@ exports.deleteYogaSession = async (req, res) => {
  * Force delete yoga session
  * Deletes from database even if R2 deletion fails
  */
-exports.forceDeleteYogaSession = async (req, res) => {
+export const forceDeleteYogaSession = async (req, res) => {
   try {
     const yogaSession = await YogaSession.findById(req.params.id);
     if (!yogaSession) {
@@ -291,7 +297,7 @@ exports.forceDeleteYogaSession = async (req, res) => {
  * Update yoga session metadata
  * Updates title, section, or card IDs
  */
-exports.updateYogaSession = async (req, res) => {
+export const updateYogaSession = async (req, res) => {
   try {
     const { title, sectionId, uniqueId, cardId } = req.body;
 
@@ -333,7 +339,7 @@ exports.updateYogaSession = async (req, res) => {
  * Get yoga session info by ID
  * Returns detailed session information
  */
-exports.getYogaSessionInfo = async (req, res) => {
+export const getYogaSessionInfo = async (req, res) => {
   try {
     const yogaSession = await YogaSession.findById(req.params.id);
     if (!yogaSession) {
@@ -357,7 +363,7 @@ exports.getYogaSessionInfo = async (req, res) => {
  * Test R2 connection
  * Validates cloud storage connectivity
  */
-exports.testR2Connection = async (req, res) => {
+export const testR2Connection = async (req, res) => {
   try {
     const params = {
       Bucket: BUCKET_NAME,
