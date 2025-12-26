@@ -219,7 +219,7 @@ router.post(
 
       if (!user) return res.status(404).json({ error: "User not found" });
 
-      user.username = String(name).trim();
+      user.preferences.nickname = String(name).trim();
       user.preferences.gender = gender;
       user.preferences.dob = new Date(dob);
       user.onboardingCompleted = true;

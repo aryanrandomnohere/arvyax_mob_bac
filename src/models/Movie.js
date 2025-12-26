@@ -88,17 +88,30 @@ MovieSchema.index({ genres: 1, isActive: 1 });
 MovieSchema.index({ isActive: 1, order: 1 });
 
 MovieSchema.statics.getActiveMovies = function () {
-  return this.find({ isActive: true }).sort({ order: 1, createdAt: -1 });
+  // Return movies where isActive is true OR isActive field doesn't exist (backward compat)
+  return this.find({
+    $or: [{ isActive: true }, { isActive: { $exists: false } }],
+  }).sort({ order: 1, createdAt: -1 });
 };
 
-MovieSchema.statics.getMoviesByGenre = function (genre, limit = 10, excludeId = null) {
+MovieSchema.statics.getMoviesByGenre = function (
+  genre,
+  limit = 10,
+  excludeId = null
+) {
   const query = {
-    genres: genre,
-    isActive: true,
+    $and: [
+      {
+        $or: [{ genres: genre }, { genre: genre }],
+      },
+      {
+        $or: [{ isActive: true }, { isActive: { $exists: false } }],
+      },
+    ],
   };
-  
+
   if (excludeId) {
-    query._id = { $ne: excludeId };
+    query.$and.push({ _id: { $ne: excludeId } });
   }
 
   return this.find(query).limit(limit).sort({ order: 1, createdAt: -1 });
@@ -108,11 +121,21 @@ MovieSchema.statics.getSimilarMovies = async function (movieId, limit = 10) {
   const movie = await this.findById(movieId);
   if (!movie) return [];
 
-  // Find movies that share at least one genre
+  // Check genres first, fall back to genre if empty
+  const genres =
+    movie.genres && movie.genres.length > 0 ? movie.genres : movie.genre || [];
+  if (!genres.length) return [];
+
   return this.find({
-    _id: { $ne: movieId },
-    genres: { $in: movie.genres },
-    isActive: true,
+    $and: [
+      { _id: { $ne: movieId } },
+      {
+        $or: [{ genres: { $in: genres } }, { genre: { $in: genres } }],
+      },
+      {
+        $or: [{ isActive: true }, { isActive: { $exists: false } }],
+      },
+    ],
   })
     .limit(limit)
     .sort({ order: 1, createdAt: -1 });

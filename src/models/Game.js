@@ -77,7 +77,9 @@ GameSchema.index({ genre: 1, isActive: 1 });
 GameSchema.index({ isActive: 1, order: 1 });
 
 GameSchema.statics.getActiveGames = function () {
-  return this.find({ isActive: true }).sort({ order: 1, createdAt: -1 });
+  return this.find({
+    $or: [{ isActive: true }, { isActive: { $exists: false } }],
+  }).sort({ order: 1, createdAt: -1 });
 };
 
 GameSchema.statics.getGamesByGenre = function (
@@ -86,12 +88,16 @@ GameSchema.statics.getGamesByGenre = function (
   excludeId = null
 ) {
   const query = {
-    genre: genre,
-    isActive: true,
+    $and: [
+      { genre: genre },
+      {
+        $or: [{ isActive: true }, { isActive: { $exists: false } }],
+      },
+    ],
   };
 
   if (excludeId) {
-    query._id = { $ne: excludeId };
+    query.$and.push({ _id: { $ne: excludeId } });
   }
 
   return this.find(query).limit(limit).sort({ order: 1, createdAt: -1 });

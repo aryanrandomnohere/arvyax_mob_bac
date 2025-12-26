@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 /**
  * YogaSession Model
@@ -17,4 +17,4 @@ const YogaSessionSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("YogaSession", YogaSessionSchema);
+export default mongoose.model("YogaSession", YogaSessionSchema);

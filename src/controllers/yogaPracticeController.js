@@ -1,6 +1,10 @@
-const YogaPractice = require("../models/YogaPractice");
-const cloudinary = require("cloudinary").v2;
-const config = require("../config/constants");
+import YogaPractice from "../models/YogaPractice.js";
+import { v2 as cloudinary } from "cloudinary";
+import {
+  CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET,
+} from "../config/constants.js";
 
 /**
  * Yoga Practice Controller
@@ -10,9 +14,9 @@ const config = require("../config/constants");
 
 // Cloudinary Configuration
 cloudinary.config({
-  cloud_name: config.CLOUDINARY_CLOUD_NAME,
-  api_key: config.CLOUDINARY_API_KEY,
-  api_secret: config.CLOUDINARY_API_SECRET,
+  cloud_name: CLOUDINARY_CLOUD_NAME,
+  api_key: CLOUDINARY_API_KEY,
+  api_secret: CLOUDINARY_API_SECRET,
 });
 
 // Helper function to generate unique section ID
@@ -37,7 +41,7 @@ function generateAudioId(cardId, subId = null, audioIndex = 1) {
  * Get all yoga practices
  * Returns the complete practice library structure
  */
-exports.getAllYogaPractices = async (req, res) => {
+export const getAllYogaPractices = async (req, res) => {
   try {
     const practices = await YogaPractice.find().sort({ createdAt: -1 });
     console.log(`Retrieved ${practices.length} yoga practices from database`);
@@ -74,7 +78,7 @@ exports.getAllYogaPractices = async (req, res) => {
  * Migrate audio IDs for existing practices
  * Adds audio IDs to cards that don't have them
  */
-exports.migrateAudioIds = async (req, res) => {
+export const migrateAudioIds = async (req, res) => {
   try {
     const practice = await YogaPractice.findOne().sort({ createdAt: -1 });
 
@@ -128,7 +132,7 @@ exports.migrateAudioIds = async (req, res) => {
  * Upload practice image/card
  * Creates a new practice card with image, video, and audio URLs
  */
-exports.uploadPracticeImage = async (req, res) => {
+export const uploadPracticeImage = async (req, res) => {
   try {
     const {
       title,
@@ -224,7 +228,7 @@ exports.uploadPracticeImage = async (req, res) => {
  * Add new section
  * Creates a new practice section (e.g., new category)
  */
-exports.addSection = async (req, res) => {
+export const addSection = async (req, res) => {
   try {
     const { sectionName } = req.body;
 
@@ -283,7 +287,7 @@ exports.addSection = async (req, res) => {
  * Delete practice card/image
  * Removes card from section and deletes from Cloudinary
  */
-exports.deletePracticeImage = async (req, res) => {
+export const deletePracticeImage = async (req, res) => {
   try {
     const { sectionName, cardId } = req.params;
     const practice = await YogaPractice.findOne().sort({ createdAt: -1 });
@@ -343,7 +347,7 @@ exports.deletePracticeImage = async (req, res) => {
  * Update card details
  * Updates title, rep count, URLs, etc.
  */
-exports.updateCard = async (req, res) => {
+export const updateCard = async (req, res) => {
   try {
     const { sectionName, cardId } = req.params;
     const { title, repCount, videoUrl, exerciseTime, audioUrl } = req.body;
@@ -409,7 +413,7 @@ exports.updateCard = async (req, res) => {
  * Delete section
  * Removes entire section with all cards
  */
-exports.deleteSection = async (req, res) => {
+export const deleteSection = async (req, res) => {
   try {
     const { sectionName } = req.params;
     const practice = await YogaPractice.findOne().sort({ createdAt: -1 });
@@ -471,7 +475,7 @@ exports.deleteSection = async (req, res) => {
  * Upload additional image to existing card
  * Adds sub-images (A, B, C, etc.) to a card
  */
-exports.uploadCardImage = async (req, res) => {
+export const uploadCardImage = async (req, res) => {
   try {
     const { sectionName, cardId } = req.params;
     const { url, cloudinaryId, audioUrl } = req.body;
@@ -564,7 +568,7 @@ exports.uploadCardImage = async (req, res) => {
  * Delete specific sub-image from card
  * Removes one of multiple images in a card
  */
-exports.deleteCardImage = async (req, res) => {
+export const deleteCardImage = async (req, res) => {
   try {
     const { sectionName, cardId, subId } = req.params;
     const practice = await YogaPractice.findOne().sort({ createdAt: -1 });
@@ -644,7 +648,7 @@ exports.deleteCardImage = async (req, res) => {
  * Update specific sub-image in card
  * Edits individual images within a card
  */
-exports.updateCardImage = async (req, res) => {
+export const updateCardImage = async (req, res) => {
   try {
     const { sectionName, cardId, subId } = req.params;
     const { url, cloudinaryId, audioUrl } = req.body;
@@ -767,4 +771,4 @@ async function handleCloudinaryDeletion(card, retryCount = 0) {
   }
 }
 
-module.exports = exports;
+// ES module: named exports are defined above.

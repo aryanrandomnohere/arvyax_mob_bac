@@ -12,7 +12,15 @@ import ambienceCategoryRoutes from "./routes/AmbienceCategoryRoutes.js";
 import feelingRoutes from "./routes/FeelingRoutes.js";
 import activityRoutes from "./routes/activityRoutes.js";
 import lifeContentRoutes from "./routes/lifeContentRoutes.js";
+import audioRoutes from "./routes/audioRoutes.js";
+import ambienceCommandRoutes from "./routes/ambienceCommandRoutes.js";
+import ambienceAudioRoutes from "./routes/ambienceAudioRoutes.js";
 import { scheduleCleanup } from "./utils/otpService.js";
+import yogaPracticeRoutes from "./routes/yogaPracticeRoutes.js";
+import yogaSessionRoutes from "./routes/yogaSessionRoutes.js";
+import cloudflareImageStorageRoutes from "./routes/cloudflareImageStorageRoutes.js";
+import cloudflareVideoStorageRoutes from "./routes/cloudflareVideoStorageRoutes.js";
+import hlsVideoStorageRoutes from "./routes/hlsVideoStorageRoutes.js";
 
 // Needed for __dirname in ES modules
 import { fileURLToPath } from "url";
@@ -74,6 +82,14 @@ app.use("/api/activity", activityRoutes);
 app.use("/api/ambience-categories", ambienceCategoryRoutes);
 app.use("/api/feelings", feelingRoutes);
 app.use("/api/life", lifeContentRoutes);
+app.use("/api", audioRoutes);
+app.use("/api", ambienceAudioRoutes);
+app.use("/api/ambience-commands", ambienceCommandRoutes);
+app.use("/api", yogaPracticeRoutes);
+app.use("/api", yogaSessionRoutes);
+app.use("/api", cloudflareImageStorageRoutes); // Mounted on /api to match old backend
+app.use("/api", cloudflareVideoStorageRoutes); // Video routes for Cloudflare R2
+app.use("/api", hlsVideoStorageRoutes); // HLS video routes with FFmpeg processing
 
 app.get("/health", (req, res) => {
   res.json({
@@ -102,6 +118,7 @@ app.get("/", (req, res) => {
       ambienceCategories: "/api/ambience-categories",
       feelings: "/api/feelings",
       life: "/api/life",
+      audios: "/api/audios",
     },
   });
 });

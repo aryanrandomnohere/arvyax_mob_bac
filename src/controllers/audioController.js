@@ -1,7 +1,13 @@
-const Audio = require("../models/Audio");
-const AWS = require("aws-sdk");
-const config = require("../config/constants");
-const { v4: uuidv4 } = require("uuid");
+import mongoose from "mongoose";
+import Audio from "../models/Audio.js";
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+  ListObjectsV2Command,
+} from "@aws-sdk/client-s3";
+import * as config from "../config/constants.js";
+import { v4 as uuidv4 } from "uuid";
 
 /**
  * Audio Controller
@@ -9,34 +15,36 @@ const { v4: uuidv4 } = require("uuid");
  * Used for guided meditation, box breathing, sound therapy, etc.
  */
 
-// Cloudflare R2 Configuration
-const r2 = new AWS.S3({
-  accessKeyId: config.R2_ACCESS_KEY_ID,
-  secretAccessKey: config.R2_SECRET_ACCESS_KEY,
+// Cloudflare R2 Configuration (AWS SDK v3)
+const r2 = new S3Client({
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID || config.R2_ACCESS_KEY_ID,
+    secretAccessKey:
+      process.env.R2_SECRET_ACCESS_KEY || config.R2_SECRET_ACCESS_KEY,
+  },
   region: "auto",
-  endpoint: config.R2_ENDPOINT,
-  s3ForcePathStyle: true,
-  signatureVersion: "v4",
+  endpoint: process.env.R2_ENDPOINT || config.R2_ENDPOINT,
+  forcePathStyle: true,
 });
 
-const BUCKET_NAME = config.R2_BUCKET_NAME;
-const PUBLIC_R2_URL = config.R2_PUBLIC_URL;
+const BUCKET_NAME = process.env.R2_BUCKET_NAME || config.R2_BUCKET_NAME;
+const PUBLIC_R2_URL = process.env.R2_PUBLIC_URL || config.R2_PUBLIC_URL;
 
 // Helper function to upload file to R2
 const uploadToR2 = async (fileBuffer, fileName, mimeType, folder = "audio") => {
   const key = `${folder}/${Date.now()}-${fileName}`;
 
-  const params = {
+  const command = new PutObjectCommand({
     Bucket: BUCKET_NAME,
     Key: key,
     Body: fileBuffer,
     ContentType: mimeType,
     ACL: "public-read",
-  };
+  });
 
-  const result = await r2.upload(params).promise();
+  const result = await r2.send(command);
   return {
-    key: key,
+    key,
     url: `${PUBLIC_R2_URL}/${key}`,
     etag: result.ETag,
   };
@@ -44,12 +52,11 @@ const uploadToR2 = async (fileBuffer, fileName, mimeType, folder = "audio") => {
 
 // Helper function to delete file from R2
 const deleteFromR2 = async (key) => {
-  const params = {
+  const command = new DeleteObjectCommand({
     Bucket: BUCKET_NAME,
     Key: key,
-  };
-
-  await r2.deleteObject(params).promise();
+  });
+  await r2.send(command);
   return true;
 };
 
@@ -57,7 +64,7 @@ const deleteFromR2 = async (key) => {
  * Get all audio files
  * Returns list of all meditation/mindfulness audio
  */
-exports.getAllAudios = async (req, res) => {
+export const getAllAudios = async (req, res) => {
   try {
     const audios = await Audio.find().sort({ createdAt: -1 });
     console.log(`Retrieved ${audios.length} audio files from database`);
@@ -75,7 +82,7 @@ exports.getAllAudios = async (req, res) => {
  * Upload audio with file
  * Stores audio and optional thumbnail in R2
  */
-exports.uploadAudio = async (req, res) => {
+export const uploadAudio = async (req, res) => {
   try {
     const { title, duration } = req.body;
     const audioFile = req.files?.audioFile?.[0];
@@ -153,7 +160,7 @@ exports.uploadAudio = async (req, res) => {
  * Upload audio via URL (legacy support)
  * For direct URL-based saves
  */
-exports.uploadAudioUrl = async (req, res) => {
+export const uploadAudioUrl = async (req, res) => {
   try {
     const {
       title,
@@ -200,7 +207,7 @@ exports.uploadAudioUrl = async (req, res) => {
  * Delete audio
  * Removes audio and thumbnail from R2 and database
  */
-exports.deleteAudio = async (req, res) => {
+export const deleteAudio = async (req, res) => {
   try {
     const audio = await Audio.findById(req.params.id);
     if (!audio) {
@@ -257,7 +264,7 @@ exports.deleteAudio = async (req, res) => {
  * Force delete audio
  * Deletes from database even if R2 deletion fails
  */
-exports.forceDeleteAudio = async (req, res) => {
+export const forceDeleteAudio = async (req, res) => {
   try {
     const audio = await Audio.findById(req.params.id);
     if (!audio) {
@@ -293,7 +300,7 @@ exports.forceDeleteAudio = async (req, res) => {
  * Update audio details
  * Updates title and metadata
  */
-exports.updateAudio = async (req, res) => {
+export const updateAudio = async (req, res) => {
   try {
     const { title } = req.body;
 
@@ -332,9 +339,18 @@ exports.updateAudio = async (req, res) => {
  * Get audio file info
  * Returns detailed audio information
  */
-exports.getAudioInfo = async (req, res) => {
+export const getAudioInfo = async (req, res) => {
   try {
-    const audio = await Audio.findById(req.params.id);
+    const audioId = (req.params.id || "").trim();
+    // Guard against malformed ids so Mongoose doesn't throw a CastError
+    if (!mongoose.Types.ObjectId.isValid(audioId)) {
+      return res.status(400).json({
+        error: "Invalid audio id format",
+        details: "Expected a 24-character hex ObjectId",
+      });
+    }
+    console.log("Fetching audio info for ID:", audioId);
+    const audio = await Audio.findById(audioId);
     if (!audio) {
       return res.status(404).json({ error: "Audio not found" });
     }
@@ -356,14 +372,14 @@ exports.getAudioInfo = async (req, res) => {
  * Test R2 connection
  * Validates cloud storage connectivity
  */
-exports.testR2Connection = async (req, res) => {
+export const testR2Connection = async (req, res) => {
   try {
-    const params = {
+    const command = new ListObjectsV2Command({
       Bucket: BUCKET_NAME,
       MaxKeys: 1,
-    };
+    });
 
-    const result = await r2.listObjectsV2(params).promise();
+    const result = await r2.send(command);
 
     res.json({
       success: true,
@@ -381,5 +397,3 @@ exports.testR2Connection = async (req, res) => {
     });
   }
 };
-
-module.exports = exports;

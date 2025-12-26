@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 /**
  * AmbienceCommand Model
@@ -74,4 +74,4 @@ AmbienceCommandSchema.pre("save", function (next) {
   next();
 });
 
-module.exports = mongoose.model("AmbienceCommand", AmbienceCommandSchema);
+export default mongoose.model("AmbienceCommand", AmbienceCommandSchema);

@@ -1,6 +1,6 @@
-const express = require("express");
+import express from "express";
+import * as yogaPracticeController from "../controllers/yogaPracticeController.js";
 const router = express.Router();
-const yogaPracticeController = require("../controllers/yogaPracticeController");
 
 /**
  * Yoga Practice Routes
@@ -125,4 +125,4 @@ router.put(
   yogaPracticeController.updateCardImage
 );
 
-module.exports = router;
+export default router;

@@ -70,8 +70,27 @@ export const getSimilarMovies = async (req, res) => {
     const { id } = req.params;
     const { limit = 10 } = req.query;
 
+    const movie = await Movie.findById(id);
+    console.log("SOURCE MOVIE:", {
+      id,
+      title: movie?.title,
+      genre: movie?.genre,
+      genres: movie?.genres,
+    });
+
     const movies = await Movie.getSimilarMovies(id, parseInt(limit));
-    return res.json({ movies });
+    console.log("FOUND SIMILAR MOVIES:", movies.length);
+
+    return res.json({
+      movies,
+      source: movie
+        ? {
+            id: movie._id,
+            title: movie.title,
+            genre: movie.genre || movie.genres,
+          }
+        : null,
+    });
   } catch (err) {
     console.error("GET SIMILAR MOVIES ERROR:", err);
     return res.status(500).json({ error: "Server error" });
@@ -85,6 +104,7 @@ export const getSimilarMovies = async (req, res) => {
 export const getGames = async (req, res) => {
   try {
     const games = await Game.getActiveGames();
+    console.log("GET GAMES:", games.length);
     return res.json({ games });
   } catch (err) {
     console.error("GET GAMES ERROR:", err);
@@ -140,6 +160,7 @@ export const getGamesByGenre = async (req, res) => {
 export const getBooks = async (req, res) => {
   try {
     const books = await Book.getActiveBooks();
+    console.log("GET BOOKS:", books.length);
     return res.json({ books });
   } catch (err) {
     console.error("GET BOOKS ERROR:", err);

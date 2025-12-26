@@ -1,7 +1,8 @@
-const express = require("express");
+import express from "express";
+import multer from "multer";
+import * as ambienceAudioController from "../controllers/ambienceAudioController.js";
+
 const router = express.Router();
-const multer = require("multer");
-const ambienceAudioController = require("../controllers/ambienceAudioController");
 
 /**
  * Ambience Audio Routes
@@ -37,7 +38,7 @@ const upload = multer({
 router.get(
   "/get-ambience-audios",
   ambienceAudioController.getAllAmbienceAudios
-);
+); ///tested
 
 /**
  * POST /api/ambience-audios/upload-ambience-audio
@@ -51,7 +52,7 @@ router.post(
   "/upload-ambience-audio",
   upload.single("audioFile"),
   ambienceAudioController.uploadAmbienceAudio
-);
+); ///tested
 
 /**
  * POST /api/ambience-audios/upload-ambience-audio-url
@@ -63,7 +64,7 @@ router.post(
 router.post(
   "/upload-ambience-audio-url",
   ambienceAudioController.uploadAmbienceAudioUrl
-);
+); ///what is ambience audio url
 
 /**
  * DELETE /api/ambience-audios/delete-ambience-audio/:id
@@ -75,7 +76,7 @@ router.post(
 router.delete(
   "/delete-ambience-audio/:id",
   ambienceAudioController.deleteAmbienceAudio
-);
+); ///tested
 
 /**
  * DELETE /api/ambience-audios/force-delete-ambience-audio/:id
@@ -87,7 +88,7 @@ router.delete(
 router.delete(
   "/force-delete-ambience-audio/:id",
   ambienceAudioController.forceDeleteAmbienceAudio
-);
+); ///tested
 
 /**
  * PUT /api/ambience-audios/update-ambience-audio/:id
@@ -99,7 +100,7 @@ router.delete(
 router.put(
   "/update-ambience-audio/:id",
   ambienceAudioController.updateAmbienceAudio
-);
+); // not tested but probably works
 
 /**
  * GET /api/ambience-audios/ambience-audio-info/:id
@@ -110,7 +111,7 @@ router.put(
 router.get(
   "/ambience-audio-info/:id",
   ambienceAudioController.getAmbienceAudioInfo
-);
+); //tested
 
 // ============ CATEGORY & TAG MANAGEMENT ============
 
@@ -123,7 +124,7 @@ router.get(
 router.get(
   "/ambience-categories",
   ambienceAudioController.getAmbienceCategories
-);
+); // worked but returned empty array
 
 /**
  * GET /api/ambience-audios/ambience-tags
@@ -131,7 +132,7 @@ router.get(
  * Returns: Array of tag names
  * Usage: Populate tag filter chips/pills
  */
-router.get("/ambience-tags", ambienceAudioController.getAmbienceTags);
+router.get("/ambience-tags", ambienceAudioController.getAmbienceTags); ///tested
 
 // ============ UTILITY ROUTES ============
 
@@ -140,7 +141,7 @@ router.get("/ambience-tags", ambienceAudioController.getAmbienceTags);
  * Test R2 cloud storage connection for ambience audio
  * Returns: Connection status, bucket info, sample files
  */
-router.get("/test-r2-connection", ambienceAudioController.testR2Connection);
+router.get("/test-r2-connection", ambienceAudioController.testR2Connection); ///tested for some reason this is same as the audi/test-r2-connection
 
 /**
  * GET /api/ambience-audios/storage-stats
@@ -148,6 +149,6 @@ router.get("/test-r2-connection", ambienceAudioController.testR2Connection);
  * Returns: Total audio count, total size, average size
  * Usage: Admin dashboard, storage monitoring
  */
-router.get("/storage-stats", ambienceAudioController.getStorageStats);
+router.get("/storage-stats", ambienceAudioController.getStorageStats); ///tested
 
-module.exports = router;
+export default router;

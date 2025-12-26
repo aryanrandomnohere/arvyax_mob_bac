@@ -20,6 +20,11 @@ const AmbienceSelectionSchema = new Schema(
 );
 
 const PreferencesSchema = new Schema({
+  nickname: {
+    type: String,
+    default: "",
+    trim: true,
+  },
   gender: {
     type: String,
     enum: ["male", "female", "other", ""],
@@ -115,6 +120,7 @@ const RegisterUserSchema = new Schema(
     preferences: {
       type: PreferencesSchema,
       default: () => ({
+        nickname: "",
         gender: "",
         dob: null,
         isQnaFilled: false,
@@ -150,6 +156,7 @@ RegisterUserSchema.methods.getPreferences = function () {
 
 RegisterUserSchema.methods.clearPreferences = function () {
   this.preferences = {
+    nickname: "",
     gender: "",
     dob: null,
     isQnaFilled: false,

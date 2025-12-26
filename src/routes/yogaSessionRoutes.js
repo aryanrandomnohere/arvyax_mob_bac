@@ -1,7 +1,7 @@
-const express = require("express");
+import express from "express";
+import multer from "multer";
+import * as yogaSessionController from "../controllers/yogaSessionController.js";
 const router = express.Router();
-const multer = require("multer");
-const yogaSessionController = require("../controllers/yogaSessionController");
 
 /**
  * Yoga Session Routes
@@ -118,4 +118,4 @@ router.get("/yoga-session-info/:id", yogaSessionController.getYogaSessionInfo);
  */
 router.get("/test-r2-connection", yogaSessionController.testR2Connection);
 
-module.exports = router;
+export default router;
