@@ -2,9 +2,7 @@
 node_modules/
 package-lock.json
 
-# Environment variables
-.env
-.env.local
+# Environment variables.env.local
 .env.development
 .env.test
 .env.production
@@ -56,3 +54,13 @@ tmp/
 # Coverage directory
 coverage/
 *.lcov
+
+# Never commit real env files
+.env
+.env.*
+**/.env
+**/.env.*
+
+# Allow example env templates
+!.env.example
+!**/.env.example
