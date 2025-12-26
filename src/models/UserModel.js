@@ -172,6 +172,50 @@ RegisterUserSchema.statics.findByPhoneOrEmail = function (identifier) {
   });
 };
 
+/**
+ * Get user profile with theme information included
+ * Populates the selected theme details if available
+ */
+RegisterUserSchema.methods.getProfileWithTheme = async function () {
+  const AmbienceCategory = mongoose.model("AmbienceCategory");
+
+  let selectedTheme = null;
+  const ambienceSelection = this.preferences.ambienceSelections?.[0];
+
+  if (ambienceSelection && ambienceSelection.themeId) {
+    selectedTheme = await AmbienceCategory.getThemeById(
+      ambienceSelection.themeId
+    );
+  }
+
+  return {
+    userId: this._id,
+    username: this.username,
+    email: this.email,
+    phoneNumber: this.phoneNumber,
+    photoUrl: this.photoUrl,
+    onboardingCompleted: this.onboardingCompleted,
+    preferences: {
+      nickname: this.preferences.nickname,
+      gender: this.preferences.gender,
+      dob: this.preferences.dob,
+      isQnaFilled: this.preferences.isQnaFilled,
+    },
+    selectedTheme: selectedTheme
+      ? {
+          themeId: selectedTheme.id,
+          themeName: selectedTheme.name,
+          themeImageUrl: selectedTheme.imageUrl,
+          categoryId: selectedTheme.categoryId,
+          categoryName: selectedTheme.categoryName,
+        }
+      : null,
+    badges: this.badges,
+    createdAt: this.createdAt,
+    updatedAt: this.updatedAt,
+  };
+};
+
 const RegisterUser = mongoose.model("RegisterUser", RegisterUserSchema);
 
 export default RegisterUser;

@@ -13,11 +13,11 @@
     { "key": "month", "value": "2025-01" },
     { "key": "date", "value": "2025-01-01" },
     { "key": "feeling", "value": "calm" },
-    { "key": "categoryId", "value": "" },
-    { "key": "themeId", "value": "" },
-    { "key": "movieId", "value": "" },
-    { "key": "gameId", "value": "" },
-    { "key": "bookId", "value": "" },
+    { "key": "categoryId", "value": "694e9787c011200a54aa3937" },
+    { "key": "themeId", "value": "694e9787c011200a54aa3938" },
+    { "key": "movieId", "value": "694e80b7b81dd928deb23bce" },
+    { "key": "gameId", "value": "694e80b777a822d7acb203e0" },
+    { "key": "bookId", "value": "694e80b093f2618e74aab236" },
     { "key": "yogaSessionId", "value": "" },
     { "key": "videoId", "value": "" },
     { "key": "hlsVideoId", "value": "" },
@@ -420,59 +420,6 @@
       ]
     },
     {
-      "name": "Ambience Categories (/api/ambience-categories)",
-      "item": [
-        {
-          "name": "GET /api/ambience-categories",
-          "request": {
-            "auth": { "type": "noauth" },
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/ambience-categories",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "ambience-categories"]
-            }
-          }
-        },
-        {
-          "name": "GET /api/ambience-categories/themes",
-          "request": {
-            "auth": { "type": "noauth" },
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/ambience-categories/themes",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "ambience-categories", "themes"]
-            }
-          }
-        },
-        {
-          "name": "GET /api/ambience-categories/themes/:themeId",
-          "request": {
-            "auth": { "type": "noauth" },
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/ambience-categories/themes/{{themeId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "ambience-categories", "themes", "{{themeId}}"]
-            }
-          }
-        },
-        {
-          "name": "GET /api/ambience-categories/:id",
-          "request": {
-            "auth": { "type": "noauth" },
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/ambience-categories/{{categoryId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "ambience-categories", "{{categoryId}}"]
-            }
-          }
-        }
-      ]
-    },
-    {
       "name": "Life Content (/api/life)",
       "item": [
         {
@@ -484,6 +431,18 @@
               "raw": "{{baseUrl}}/api/life/movies",
               "host": ["{{baseUrl}}"],
               "path": ["api", "life", "movies"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/life/movies/genre/Nature (test case)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/life/movies/genre/Nature",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "life", "movies", "genre", "Nature"]
             }
           }
         },
@@ -536,6 +495,18 @@
           }
         },
         {
+          "name": "GET /api/life/games/genre/Puzzle (test case)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/life/games/genre/Puzzle",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "life", "games", "genre", "Puzzle"]
+            }
+          }
+        },
+        {
           "name": "GET /api/life/games/genre/:genre",
           "request": {
             "auth": { "type": "noauth" },
@@ -572,6 +543,18 @@
           }
         },
         {
+          "name": "GET /api/life/books/genre/Health (test case)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/life/books/genre/Health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "life", "books", "genre", "Health"]
+            }
+          }
+        },
+        {
           "name": "GET /api/life/books/genre/:genre",
           "request": {
             "auth": { "type": "noauth" },
@@ -604,6 +587,102 @@
               "raw": "{{baseUrl}}/api/life/books/{{bookId}}",
               "host": ["{{baseUrl}}"],
               "path": ["api", "life", "books", "{{bookId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ambience Categories (/api/ambience-categories)",
+      "item": [
+        {
+          "name": "GET /api/ambience-categories - Get all categories",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/ambience-categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ambience-categories"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/ambience-categories/themes - Get all themes",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/ambience-categories/themes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ambience-categories", "themes"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/ambience-categories/themes/:themeId - Get theme details",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/ambience-categories/themes/{{themeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ambience-categories", "themes", "{{themeId}}"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/ambience-categories/:id - Get category by ID",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/ambience-categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ambience-categories", "{{categoryId}}"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/ambience-categories/user/select-theme/:themeId - Select theme",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/ambience-categories/user/select-theme/{{themeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "ambience-categories",
+                "user",
+                "select-theme",
+                "{{themeId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /api/ambience-categories/user/selected-theme - Get selected theme",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/ambience-categories/user/selected-theme",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ambience-categories", "user", "selected-theme"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/ambience-categories/user/selected-theme - Deselect theme",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/ambience-categories/user/selected-theme",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ambience-categories", "user", "selected-theme"]
             }
           }
         }
