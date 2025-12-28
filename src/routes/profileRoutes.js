@@ -36,6 +36,8 @@ const router = express.Router();
  * - dob, gender
  * - currentFeeling (open feeling log)
  * - currentStreak (consecutive active days)
+ * - badges (earned badges)
+ * - streakBadges (all streak badges with isEarned)
  */
 router.get("/profile", authMiddleware, tryCatch(getMyProfile));
 

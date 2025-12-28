@@ -128,6 +128,19 @@ const RegisterUserSchema = new Schema(
         lastUpdated: new Date(),
       }),
     },
+
+    // Dedicated timestamps so clients can sync profile vs journal independently.
+    profileLastUpdatedAt: {
+      type: Date,
+      default: Date.now,
+      index: true,
+    },
+
+    journalLastUpdatedAt: {
+      type: Date,
+      default: Date.now,
+      index: true,
+    },
   },
   {
     timestamps: true,

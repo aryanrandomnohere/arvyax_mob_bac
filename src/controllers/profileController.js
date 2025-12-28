@@ -50,6 +50,17 @@ async function buildProfilePayload(userId) {
     .lean();
   if (!user) return null;
 
+  const activeStreakBadges = await Badge.find({
+    isActive: true,
+    milestoneDays: { $ne: null },
+  })
+    .sort({ order: 1, milestoneDays: 1, level: 1 })
+    .lean();
+
+  const earnedBadgeIdSet = new Set(
+    (user.badges ?? []).map((badge) => String(badge?._id ?? badge))
+  );
+
   const currentLog = await FeelingLog.getCurrentOpenLog(userId);
   const currentStreak = await computeCurrentStreak(userId);
 
@@ -62,6 +73,11 @@ async function buildProfilePayload(userId) {
     photoUrl: user.photoUrl ?? null,
     onboardingCompleted: Boolean(user.onboardingCompleted),
 
+    profileLastUpdatedAt:
+      user.profileLastUpdatedAt ?? user.updatedAt ?? user.createdAt ?? null,
+    journalLastUpdatedAt:
+      user.journalLastUpdatedAt ?? user.updatedAt ?? user.createdAt ?? null,
+
     gender: user.preferences?.gender ?? "",
     dob: user.preferences?.dob ?? null,
 
@@ -72,6 +88,20 @@ async function buildProfilePayload(userId) {
       description: badge.description,
       criteria: badge.criteria ?? "",
       level: badge.level ?? 1,
+    })),
+
+    // All streak badges (earned + not earned) for the streak goal UI.
+    // Use `isEarned` (conventional boolean flag) instead of `earned`.
+    streakBadges: (activeStreakBadges ?? []).map((badge) => ({
+      id: String(badge._id),
+      name: badge.name,
+      imageUrl: badge.imageUrl,
+      description: badge.description,
+      criteria: badge.criteria ?? "",
+      level: badge.level ?? 1,
+      milestoneDays: badge.milestoneDays ?? null,
+      order: badge.order ?? 0,
+      isEarned: earnedBadgeIdSet.has(String(badge._id)),
     })),
 
     currentFeeling: currentLog
@@ -137,6 +167,8 @@ export const updateMyProfile = async (req, res) => {
     }
     user.preferences.dob = parsedDob;
   }
+
+  user.profileLastUpdatedAt = new Date();
 
   await user.save();
 

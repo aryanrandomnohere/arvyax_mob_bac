@@ -21,6 +21,8 @@ import yogaSessionRoutes from "./routes/yogaSessionRoutes.js";
 import cloudflareImageStorageRoutes from "./routes/cloudflareImageStorageRoutes.js";
 import cloudflareVideoStorageRoutes from "./routes/cloudflareVideoStorageRoutes.js";
 import hlsVideoStorageRoutes from "./routes/hlsVideoStorageRoutes.js";
+import leaderboardRoutes from "./routes/leaderboardRoutes.js";
+import journalRoutes from "./routes/journalRoutes.js";
 
 // Needed for __dirname in ES modules
 import { fileURLToPath } from "url";
@@ -90,6 +92,8 @@ app.use("/api", yogaSessionRoutes);
 app.use("/api", cloudflareImageStorageRoutes); // Mounted on /api to match old backend
 app.use("/api", cloudflareVideoStorageRoutes); // Video routes for Cloudflare R2
 app.use("/api", hlsVideoStorageRoutes); // HLS video routes with FFmpeg processing
+app.use("/api", leaderboardRoutes);
+app.use("/api", journalRoutes);
 
 app.get("/health", (req, res) => {
   res.json({

@@ -28,7 +28,8 @@
     { "key": "environment", "value": "rain" },
     { "key": "sectionName", "value": "Asana" },
     { "key": "cardId", "value": "" },
-    { "key": "subId", "value": "" }
+    { "key": "subId", "value": "" },
+    { "key": "taskId", "value": "" }
   ],
   "auth": {
     "type": "bearer",
@@ -268,6 +269,18 @@
           }
         },
         {
+          "name": "GET /api/leaderboard/streak (auth)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/leaderboard/streak?limit=100",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "leaderboard", "streak"],
+              "query": [{ "key": "limit", "value": "100" }]
+            }
+          }
+        },
+        {
           "name": "PUT /api/profile (auth)",
           "request": {
             "method": "PUT",
@@ -307,6 +320,70 @@
               "raw": "{{baseUrl}}/api/preferences/ambience",
               "host": ["{{baseUrl}}"],
               "path": ["api", "preferences", "ambience"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Journal (/api)",
+      "item": [
+        {
+          "name": "GET /api/journal (auth)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/journal?date={{date}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "journal"],
+              "query": [{ "key": "date", "value": "{{date}}" }]
+            }
+          }
+        },
+        {
+          "name": "POST /api/journal/tasks (auth) (creates task)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () { pm.response.to.have.status(201); });",
+                  "try {",
+                  "  const body = pm.response.json();",
+                  "  if (body.task && body.task.id) pm.collectionVariables.set('taskId', String(body.task.id));",
+                  "} catch (e) {}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Read 10 pages\",\n  \"dueDateKey\": \"{{date}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/journal/tasks",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "journal", "tasks"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/journal/tasks/:taskId (auth) (toggle complete)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isCompleted\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/journal/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "journal", "tasks", "{{taskId}}"]
             }
           }
         }
