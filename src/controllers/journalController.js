@@ -78,6 +78,7 @@ export const getJournalForDate = async (req, res) => {
     return {
       id: String(t._id),
       title: t.title,
+      description: t.description ?? "",
       dueDateKey: t.dueDateKey,
       isCompleted: Boolean(t.isCompleted),
       completedAt: t.completedAt ?? null,
@@ -108,7 +109,7 @@ export const createJournalTask = async (req, res) => {
   const userId = req.user?.id;
   if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
-  const { title, dueDateKey } = req.body;
+  const { title, description, dueDateKey } = req.body;
   const key = dueDateKey ?? utcDateKey(new Date());
 
   if (!dateKeyToUtcDate(key)) {
@@ -118,6 +119,7 @@ export const createJournalTask = async (req, res) => {
   const task = await JournalTask.create({
     user: userId,
     title: String(title).trim(),
+    description: String(description ?? "").trim(),
     dueDateKey: key,
   });
 
@@ -127,6 +129,7 @@ export const createJournalTask = async (req, res) => {
     task: {
       id: String(task._id),
       title: task.title,
+      description: task.description ?? "",
       dueDateKey: task.dueDateKey,
       isCompleted: Boolean(task.isCompleted),
       completedAt: task.completedAt,
@@ -178,6 +181,7 @@ export const updateJournalTask = async (req, res) => {
     task: {
       id: String(task._id),
       title: task.title,
+      description: task.description ?? "",
       dueDateKey: task.dueDateKey,
       isCompleted: Boolean(task.isCompleted),
       completedAt: task.completedAt ?? null,

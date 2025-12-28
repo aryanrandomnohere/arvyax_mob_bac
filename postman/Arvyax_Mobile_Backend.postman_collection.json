@@ -362,7 +362,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Read 10 pages\",\n  \"dueDateKey\": \"{{date}}\"\n}"
+              "raw": "{\n  \"title\": \"Read 10 pages\",\n  \"description\": \"Read a few pages before bed\",\n  \"dueDateKey\": \"{{date}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/journal/tasks",

@@ -18,6 +18,13 @@ const JournalTaskSchema = new Schema(
       maxlength: 200,
     },
 
+    description: {
+      type: String,
+      default: "",
+      trim: true,
+      maxlength: 1000,
+    },
+
     // The day this task was originally created for.
     // Pending tasks are shown on later days as well (carry-forward).
     dueDateKey: {
