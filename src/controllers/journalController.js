@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import RegisterUser from "../models/UserModel.js";
-import JournalTask from "../models/JournalTask.js";
+import JournalEntry from "../models/JournalEntry.js";
 
 function utcDateKey(date) {
   const year = date.getUTCFullYear();
@@ -20,14 +20,6 @@ function dateKeyToUtcDate(dateKey) {
   return dt;
 }
 
-function diffDaysUtc(fromDateKey, toDateKey) {
-  const from = dateKeyToUtcDate(fromDateKey);
-  const to = dateKeyToUtcDate(toDateKey);
-  if (!from || !to) return 0;
-  const ms = to.getTime() - from.getTime();
-  return Math.max(0, Math.floor(ms / 86400000));
-}
-
 async function touchJournalLastUpdatedAt(userId) {
   await RegisterUser.updateOne(
     { _id: userId },
@@ -35,13 +27,49 @@ async function touchJournalLastUpdatedAt(userId) {
   );
 }
 
+function normalizeStatus(status) {
+  const s = String(status ?? "")
+    .trim()
+    .toLowerCase();
+  if (s === "completed") return "completed";
+  if (s === "pending") return "pending";
+  if (s === "skipped") return "skipped";
+  // Default for unknown values (keeps backend stable)
+  return "pending";
+}
+
+function mapEntry(entry) {
+  const tasks = (entry?.tasks ?? []).map((t) => ({
+    id: String(t._id),
+    task: t.task,
+    status: t.status,
+    createdAt: t.createdAt ?? null,
+    updatedAt: t.updatedAt ?? null,
+  }));
+
+  const questions = entry?.questions
+    ? {
+        mistakes: entry.questions.mistakes ?? "",
+        whatDidYouLearn: entry.questions.whatDidYouLearn ?? "",
+        anythingSpecialHappenedToday: {
+          aboutIt: entry.questions.anythingSpecialHappenedToday?.aboutIt ?? "",
+          photos: entry.questions.anythingSpecialHappenedToday?.photos ?? [],
+        },
+      }
+    : null;
+
+  return {
+    dateKey: entry?.dateKey ?? null,
+    tasks,
+    questions,
+    updatedAt: entry?.updatedAt ?? null,
+    createdAt: entry?.createdAt ?? null,
+  };
+}
+
 /**
  * GET /api/journal?date=YYYY-MM-DD
- * Returns daily journal data for a date.
- *
- * Carry-forward rule:
- * - Any pending task with dueDateKey <= date is included.
- * - Completed tasks are included only if completedDateKey === date.
+ * Returns the journal entry for a given day.
  */
 export const getJournalForDate = async (req, res) => {
   const userId = req.user?.id;
@@ -56,37 +84,10 @@ export const getJournalForDate = async (req, res) => {
     return res.status(400).json({ error: "Invalid date" });
   }
 
-  const tasks = await JournalTask.find({
-    user: userId,
-    $or: [
-      { isCompleted: false, dueDateKey: { $lte: dateKey } },
-      { isCompleted: true, completedDateKey: dateKey },
-    ],
-  })
-    .sort({ isCompleted: 1, dueDateKey: 1, createdAt: 1 })
-    .lean();
-
+  const entry = await JournalEntry.findOne({ user: userId, dateKey }).lean();
   const user = await RegisterUser.findById(userId)
     .select("journalLastUpdatedAt updatedAt createdAt")
     .lean();
-
-  const mapped = (tasks ?? []).map((t) => {
-    const completionKey = t.completedDateKey ?? null;
-    const effectiveKey = completionKey ?? dateKey;
-    const daysLate = diffDaysUtc(t.dueDateKey, effectiveKey);
-
-    return {
-      id: String(t._id),
-      title: t.title,
-      description: t.description ?? "",
-      dueDateKey: t.dueDateKey,
-      isCompleted: Boolean(t.isCompleted),
-      completedAt: t.completedAt ?? null,
-      completedDateKey: completionKey,
-      daysLate,
-      isLate: daysLate > 0,
-    };
-  });
 
   return res.json({
     journal: {
@@ -96,53 +97,149 @@ export const getJournalForDate = async (req, res) => {
         user?.updatedAt ??
         user?.createdAt ??
         null,
-      tasks: mapped,
+      entry: entry ? mapEntry(entry) : { dateKey, tasks: [], questions: null },
     },
   });
 };
 
 /**
- * POST /api/journal/tasks
- * Body: { title, dueDateKey? }
+ * POST /api/journal/tasks/batch
+ * Body: { dateKey?, tasks: [{ task, status? }, ...] }
+ * Creates or replaces the task list for that date.
  */
-export const createJournalTask = async (req, res) => {
+export const upsertJournalTasksForDate = async (req, res) => {
   const userId = req.user?.id;
   if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
-  const { title, description, dueDateKey } = req.body;
-  const key = dueDateKey ?? utcDateKey(new Date());
+  const { dateKey, tasks } = req.body;
+  const key = dateKey ?? utcDateKey(new Date());
 
   if (!dateKeyToUtcDate(key)) {
-    return res.status(400).json({ error: "Invalid dueDateKey" });
+    return res.status(400).json({ error: "Invalid dateKey" });
   }
 
-  const task = await JournalTask.create({
-    user: userId,
-    title: String(title).trim(),
-    description: String(description ?? "").trim(),
-    dueDateKey: key,
-  });
+  const normalizedTasks = (tasks ?? []).map((t) => ({
+    task: String(t.task ?? "").trim(),
+    status: normalizeStatus(t.status),
+  }));
+
+  const entry = await JournalEntry.findOneAndUpdate(
+    { user: userId, dateKey: key },
+    { $set: { tasks: normalizedTasks } },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  ).lean();
 
   await touchJournalLastUpdatedAt(userId);
 
+  return res.status(201).json({ journal: mapEntry(entry) });
+};
+
+/**
+ * GET /api/journal/active
+ * Returns an array containing:
+ * - today's journal entry (even if empty)
+ * - all other days where at least one task is not completed
+ */
+export const getActiveJournals = async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+  const todayKey = utcDateKey(new Date());
+
+  const [todayEntry, incompleteEntries] = await Promise.all([
+    JournalEntry.findOne({ user: userId, dateKey: todayKey }).lean(),
+    JournalEntry.find({
+      user: userId,
+      dateKey: { $ne: todayKey },
+      tasks: { $elemMatch: { status: { $ne: "completed" } } },
+    })
+      .sort({ dateKey: -1 })
+      .lean(),
+  ]);
+
+  const today = todayEntry
+    ? mapEntry(todayEntry)
+    : { dateKey: todayKey, tasks: [], questions: null };
+
+  const filtered = (incompleteEntries ?? [])
+    .map((e) => mapEntry(e))
+    .filter((e) => (e.tasks ?? []).some((t) => t.status !== "completed"));
+
+  return res.json({ journals: [today, ...filtered] });
+};
+
+/**
+ * GET /api/journal/incomplete
+ * Returns only the days where at least one task is not completed.
+ */
+export const listIncompleteJournalDays = async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+  const entries = await JournalEntry.find({
+    user: userId,
+    tasks: { $elemMatch: { status: { $ne: "completed" } } },
+  })
+    .sort({ dateKey: 1 })
+    .lean();
+
+  // Extra safety filter (if empty tasks somehow exist)
+  const filtered = (entries ?? [])
+    .map((e) => mapEntry(e))
+    .filter((e) => (e.tasks ?? []).some((t) => t.status !== "completed"));
+
+  return res.json({ days: filtered });
+};
+
+/**
+ * POST /api/journal/tasks
+ * Body: { dateKey?, task, status? }
+ * Appends a new task to a date (even after 5 tasks).
+ */
+export const appendJournalTaskForDate = async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+  const { dateKey, task, status } = req.body;
+  const key = dateKey ?? utcDateKey(new Date());
+
+  if (!dateKeyToUtcDate(key)) {
+    return res.status(400).json({ error: "Invalid dateKey" });
+  }
+
+  const entry = await JournalEntry.findOne({ user: userId, dateKey: key });
+  const doc =
+    entry ??
+    (await JournalEntry.create({
+      user: userId,
+      dateKey: key,
+      tasks: [],
+    }));
+
+  doc.tasks.push({
+    task: String(task ?? "").trim(),
+    status: normalizeStatus(status),
+  });
+  await doc.save();
+
+  await touchJournalLastUpdatedAt(userId);
+
+  const created = doc.tasks[doc.tasks.length - 1];
   return res.status(201).json({
     task: {
-      id: String(task._id),
-      title: task.title,
-      description: task.description ?? "",
-      dueDateKey: task.dueDateKey,
-      isCompleted: Boolean(task.isCompleted),
-      completedAt: task.completedAt,
-      completedDateKey: task.completedDateKey,
+      id: String(created._id),
+      task: created.task,
+      status: created.status,
+      dateKey: doc.dateKey,
     },
   });
 };
 
 /**
  * PATCH /api/journal/tasks/:taskId
- * Body: { isCompleted }
+ * Body: { status }
  */
-export const updateJournalTask = async (req, res) => {
+export const updateJournalTaskStatus = async (req, res) => {
   const userId = req.user?.id;
   if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
@@ -151,41 +248,67 @@ export const updateJournalTask = async (req, res) => {
     return res.status(400).json({ error: "Invalid taskId" });
   }
 
-  const { isCompleted } = req.body;
-  const now = new Date();
-  const completionKey = utcDateKey(now);
+  const { status } = req.body;
+  const normalized = normalizeStatus(status);
 
-  const update = isCompleted
-    ? {
-        isCompleted: true,
-        completedAt: now,
-        completedDateKey: completionKey,
-      }
-    : {
-        isCompleted: false,
-        completedAt: null,
-        completedDateKey: null,
-      };
+  const entry = await JournalEntry.findOne({
+    user: userId,
+    "tasks._id": taskId,
+  });
 
-  const task = await JournalTask.findOneAndUpdate(
-    { _id: taskId, user: userId },
-    { $set: update },
-    { new: true }
-  ).lean();
+  if (!entry) return res.status(404).json({ error: "Task not found" });
 
+  const task = entry.tasks.id(taskId);
   if (!task) return res.status(404).json({ error: "Task not found" });
+  task.status = normalized;
+  await entry.save();
 
   await touchJournalLastUpdatedAt(userId);
 
   return res.json({
     task: {
       id: String(task._id),
-      title: task.title,
-      description: task.description ?? "",
-      dueDateKey: task.dueDateKey,
-      isCompleted: Boolean(task.isCompleted),
-      completedAt: task.completedAt ?? null,
-      completedDateKey: task.completedDateKey ?? null,
+      task: task.task,
+      status: task.status,
+      dateKey: entry.dateKey,
     },
   });
+};
+
+/**
+ * PUT /api/journal/questions
+ * Body: { dateKey?, mistakes, whatDidYouLearn, anythingSpecialHappenedToday: { aboutIt, photos } }
+ */
+export const upsertJournalQuestionsForDate = async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+  const { dateKey, mistakes, whatDidYouLearn, anythingSpecialHappenedToday } =
+    req.body;
+  const key = dateKey ?? utcDateKey(new Date());
+
+  if (!dateKeyToUtcDate(key)) {
+    return res.status(400).json({ error: "Invalid dateKey" });
+  }
+
+  const questions = {
+    mistakes: String(mistakes ?? "").trim(),
+    whatDidYouLearn: String(whatDidYouLearn ?? "").trim(),
+    anythingSpecialHappenedToday: {
+      aboutIt: String(anythingSpecialHappenedToday?.aboutIt ?? "").trim(),
+      photos: Array.isArray(anythingSpecialHappenedToday?.photos)
+        ? anythingSpecialHappenedToday.photos.map((p) => String(p ?? "").trim())
+        : [],
+    },
+  };
+
+  const entry = await JournalEntry.findOneAndUpdate(
+    { user: userId, dateKey: key },
+    { $set: { questions } },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  ).lean();
+
+  await touchJournalLastUpdatedAt(userId);
+
+  return res.json({ journal: mapEntry(entry) });
 };

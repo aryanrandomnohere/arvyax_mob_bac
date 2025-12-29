@@ -29,7 +29,8 @@
     { "key": "sectionName", "value": "Asana" },
     { "key": "cardId", "value": "" },
     { "key": "subId", "value": "" },
-    { "key": "taskId", "value": "" }
+    { "key": "taskId", "value": "" },
+    { "key": "journalTaskId", "value": "" }
   ],
   "auth": {
     "type": "bearer",
@@ -341,7 +342,45 @@
           }
         },
         {
-          "name": "POST /api/journal/tasks (auth) (creates task)",
+          "name": "GET /api/journal/active (auth)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/journal/active",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "journal", "active"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/journal/tasks/batch (auth) (replace tasks array)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dateKey\": \"{{date}}\",\n  \"tasks\": [\n    { \"task\": \"Task 1\", \"status\": \"pending\" },\n    { \"task\": \"Task 2\", \"status\": \"pending\" },\n    { \"task\": \"Task 3\", \"status\": \"pending\" },\n    { \"task\": \"Task 4\", \"status\": \"pending\" },\n    { \"task\": \"Task 5\", \"status\": \"pending\" }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/journal/tasks/batch",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "journal", "tasks", "batch"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/journal/incomplete (auth)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/journal/incomplete",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "journal", "incomplete"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/journal/tasks (auth) (append task)",
           "event": [
             {
               "listen": "test",
@@ -351,7 +390,7 @@
                   "pm.test('Status is 201', function () { pm.response.to.have.status(201); });",
                   "try {",
                   "  const body = pm.response.json();",
-                  "  if (body.task && body.task.id) pm.collectionVariables.set('taskId', String(body.task.id));",
+                  "  if (body.task && body.task.id) pm.collectionVariables.set('journalTaskId', String(body.task.id));",
                   "} catch (e) {}"
                 ]
               }
@@ -362,7 +401,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Read 10 pages\",\n  \"description\": \"Read a few pages before bed\",\n  \"dueDateKey\": \"{{date}}\"\n}"
+              "raw": "{\n  \"dateKey\": \"{{date}}\",\n  \"task\": \"Extra task after 5\",\n  \"status\": \"pending\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/journal/tasks",
@@ -372,18 +411,34 @@
           }
         },
         {
-          "name": "PATCH /api/journal/tasks/:taskId (auth) (toggle complete)",
+          "name": "PATCH /api/journal/tasks/:taskId (auth) (update status)",
           "request": {
             "method": "PATCH",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"isCompleted\": true\n}"
+              "raw": "{\n  \"status\": \"completed\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/journal/tasks/{{taskId}}",
+              "raw": "{{baseUrl}}/api/journal/tasks/{{journalTaskId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "journal", "tasks", "{{taskId}}"]
+              "path": ["api", "journal", "tasks", "{{journalTaskId}}"]
+            }
+          }
+        },
+        {
+          "name": "PUT /api/journal/questions (auth)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dateKey\": \"{{date}}\",\n  \"mistakes\": \"\",\n  \"whatDidYouLearn\": \"\",\n  \"anythingSpecialHappenedToday\": {\n    \"aboutIt\": \"\",\n    \"photos\": [\"https://example.com/photo1.jpg\"]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/journal/questions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "journal", "questions"]
             }
           }
         }
