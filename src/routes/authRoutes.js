@@ -1,7 +1,7 @@
 import { Router } from "express";
 import jwt from "jsonwebtoken";
 import RegisterUser from "../models/UserModel.js";
-import { JWT_SECRET } from "../config/constants.js";
+import { JWT_SECRET, TEST_EMAIL, TEST_OTP } from "../config/constants.js";
 import { generateOtp, hashOtp, verifyOtp } from "../utils/otpService.js";
 import { sendOtpEmail, sendWelcomeEmail } from "../utils/emailService.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -17,6 +17,17 @@ import {
 import { verifySocialLogin } from "../utils/socialAuthService.js";
 
 const router = Router();
+
+const isNonProd = ["development", "test"].includes(process.env.NODE_ENV);
+const normalizeEmail = (email) =>
+  String(email || "")
+    .trim()
+    .toLowerCase();
+const shouldUseTestOtpForEmail = (email) => {
+  if (!isNonProd) return false;
+  if (!TEST_EMAIL || !TEST_OTP) return false;
+  return normalizeEmail(email) === normalizeEmail(TEST_EMAIL);
+};
 
 // Temporary storage for signup OTP (not stored in DB yet)
 const pendingRegistrations = new Map();
@@ -39,7 +50,9 @@ router.post(
         return res.status(400).json({ error: "User already exists" });
       }
 
-      const otp = generateOtp();
+      const otp = shouldUseTestOtpForEmail(email)
+        ? String(TEST_OTP)
+        : generateOtp();
       const hashedOtp = await hashOtp(otp);
 
       pendingRegistrations.set(email, {
@@ -49,11 +62,12 @@ router.post(
         otpExpires: Date.now() + 10 * 60 * 1000,
       });
 
-      await sendOtpEmail(email, otp);
+      if (!shouldUseTestOtpForEmail(email)) {
+        await sendOtpEmail(email, otp);
+      }
 
       return res.json({
         message: "OTP sent. Please verify to complete registration.",
-        otp,
       });
     } catch (err) {
       console.error(err);
@@ -137,15 +151,20 @@ router.post(
           .json({ error: "User not found. Please sign up." });
       }
 
-      const otp = generateOtp();
+      const otp = shouldUseTestOtpForEmail(email)
+        ? String(TEST_OTP)
+        : generateOtp();
       const hashedOtp = await hashOtp(otp);
 
       user.otp = hashedOtp;
       user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
       await user.save();
 
-      await sendOtpEmail(email, otp);
-      return res.json({ message: "OTP sent to email", otp });
+      if (!shouldUseTestOtpForEmail(email)) {
+        await sendOtpEmail(email, otp);
+      }
+
+      return res.json({ message: "OTP sent to email" });
     } catch (err) {
       console.error("LOGIN OTP ERROR:", err);
       return res.status(500).json({ error: "Server error" });
