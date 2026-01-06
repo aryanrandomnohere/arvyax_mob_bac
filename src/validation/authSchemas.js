@@ -26,10 +26,9 @@ export const setAmbienceSelectionSchema = z.object({
 });
 
 export const socialLoginSchema = z.object({
-  provider: z.enum(["google", "apple", "facebook", "github"]),
-  // For google/apple pass idToken; for facebook/github pass accessToken
-  idToken: z.string().trim().optional(),
-  accessToken: z.string().trim().optional(),
+  provider: z.enum(["google", "apple"]),
+  // For google/apple pass idToken
+  idToken: z.string().trim().min(1, "idToken is required"),
   // Fallback fields from client if the provider doesn't return email/name
   email: z.string().trim().email("invalid email").optional(),
   name: z.string().trim().optional(),

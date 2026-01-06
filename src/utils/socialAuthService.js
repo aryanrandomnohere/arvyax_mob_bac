@@ -30,6 +30,8 @@ async function verifyGoogle({ idToken }) {
   }
   return {
     provider: "google",
+    // IMPORTANT: `sub` is the stable Google user identifier for this account.
+    // We store this value in Mongo as `user.googleId` and DO NOT store the idToken itself.
     providerId: data.sub,
     email: data.email,
     emailVerified:
@@ -45,12 +47,19 @@ async function verifyApple({ idToken }) {
   const JWKS = createRemoteJWKSet(
     new URL("https://appleid.apple.com/auth/keys")
   );
-  const { payload } = await jwtVerify(idToken, JWKS, {
+  const options = {
     issuer: "https://appleid.apple.com",
-    audience: APPLE_CLIENT_ID, // optional but recommended
-  });
+  };
+  // Only enforce audience when configured; otherwise allow verification without it.
+  if (APPLE_CLIENT_ID) {
+    options.audience = APPLE_CLIENT_ID;
+  }
+
+  const { payload } = await jwtVerify(idToken, JWKS, options);
   return {
     provider: "apple",
+    // IMPORTANT: `sub` is the stable Apple user identifier for this account.
+    // We store this value in Mongo as `user.appleId` and DO NOT store the idToken itself.
     providerId: payload.sub,
     email: payload.email || "",
     emailVerified:

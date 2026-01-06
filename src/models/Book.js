@@ -58,11 +58,47 @@ const BookSchema = new Schema(
       default: "",
       trim: true,
     },
-    //this needs to be discussed
-    readUrl: {
-      type: String,
-      default: "",
-      trim: true,
+
+    // Immersive Mode - Video experience with ambience
+    immersiveMode: {
+      enabled: {
+        type: Boolean,
+        default: false,
+      },
+      videoUrl: {
+        type: String,
+        default: "",
+        trim: true,
+      },
+      // Ambience JSON for controlling environment/lighting/sound
+      ambienceJson: {
+        type: Schema.Types.Mixed,
+        default: null,
+      },
+    },
+
+    // Quiet Mode - Reading with optional audio
+    quietMode: {
+      enabled: {
+        type: Boolean,
+        default: false,
+      },
+      // PDF for reading
+      pdfUrl: {
+        type: String,
+        default: "",
+        trim: true,
+      },
+      // Optional audiobook for simultaneous listening
+      audioUrl: {
+        type: String,
+        default: "",
+        trim: true,
+      },
+      audioDuration: {
+        type: Number, // in seconds
+        default: 0,
+      },
     },
 
     isActive: {

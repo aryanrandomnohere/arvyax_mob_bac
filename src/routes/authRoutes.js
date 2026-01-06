@@ -15,6 +15,7 @@ import {
   socialLoginSchema,
 } from "../validation/authSchemas.js";
 import { verifySocialLogin } from "../utils/socialAuthService.js";
+import { buildProfilePayload } from "../controllers/profileController.js";
 
 const router = Router();
 
@@ -269,14 +270,13 @@ router.post(
     const {
       provider,
       idToken,
-      accessToken,
       email: fallbackEmail,
       name: fallbackName,
       photoUrl: fallbackPhoto,
     } = req.body;
 
     // Verify provider token and get normalized profile
-    const profile = await verifySocialLogin(provider, { idToken, accessToken });
+    const profile = await verifySocialLogin(provider, { idToken });
 
     const email = profile.email || fallbackEmail || "";
     const name = profile.name || fallbackName || "User";
@@ -287,8 +287,6 @@ router.post(
     if (email) query.push({ email });
     if (provider === "google") query.push({ googleId: profile.providerId });
     if (provider === "apple") query.push({ appleId: profile.providerId });
-    if (provider === "facebook") query.push({ facebookId: profile.providerId });
-    if (provider === "github") query.push({ githubId: profile.providerId });
 
     let user = await RegisterUser.findOne(
       query.length ? { $or: query } : { _id: null }
@@ -301,21 +299,29 @@ router.post(
         username: name,
         email: email || undefined,
         photoUrl,
-        isEmailVerified: true,
+        isEmailVerified: Boolean(profile.emailVerified || !email),
       });
     }
 
-    // Attach provider ID and update user info
+    // Attach provider stable user id (token `sub`) and update user info.
+    // NOTE: We do not store the idToken itself; we store the stable provider user id.
     if (provider === "google") user.googleId = profile.providerId;
     if (provider === "apple") user.appleId = profile.providerId;
-    if (provider === "facebook") user.facebookId = profile.providerId;
-    if (provider === "github") user.githubId = profile.providerId;
     if (email && !user.email) user.email = email;
     if (name && (!user.username || user.username === "User"))
       user.username = name;
     // Always update photoUrl if provided (keeps profile picture current)
     if (photoUrl) user.photoUrl = photoUrl;
-    user.isEmailVerified = true;
+
+    // Mark verified if the provider asserts it.
+    // If email is not present (possible with Apple on subsequent logins), don't override existing state.
+    if (email) {
+      user.isEmailVerified = Boolean(profile.emailVerified);
+    }
+
+    // Social login implies a successful login, so clear any pending OTP state.
+    user.otp = undefined;
+    user.otpExpires = undefined;
 
     await user.save();
 
@@ -337,13 +343,23 @@ router.post(
       }
     }
 
+    const profilePayload = await buildProfilePayload(String(user._id));
+
     return res.json({
       message: isNewUser
         ? "User registered successfully"
         : "User logged in successfully",
       isNewUser,
       token,
-      user,
+      // Keep a minimal user object to avoid leaking OTP/other internals.
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email ?? null,
+        photoUrl: user.photoUrl ?? null,
+        onboardingCompleted: Boolean(user.onboardingCompleted),
+      },
+      profile: profilePayload,
       provider,
     });
   })

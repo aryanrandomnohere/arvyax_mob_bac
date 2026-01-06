@@ -237,14 +237,61 @@
           }
         },
         {
-          "name": "POST /api/auth/social-login (noauth)",
+          "name": "POST /api/auth/social-login (google, noauth)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "try {",
+                  "  const body = pm.response.json();",
+                  "  if (body.token) pm.collectionVariables.set('token', body.token);",
+                  "} catch (e) {}"
+                ]
+              }
+            }
+          ],
           "request": {
             "auth": { "type": "noauth" },
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"provider\": \"google\",\n  \"idToken\": \"<provider-id-token>\",\n  \"accessToken\": \"\",\n  \"email\": \"{{email}}\",\n  \"name\": \"{{username}}\",\n  \"photoUrl\": \"\"\n}"
+              "raw": "{\n  \"provider\": \"google\",\n  \"idToken\": \"{{googleIdToken}}\",\n  \"email\": \"{{email}}\",\n  \"name\": \"{{username}}\",\n  \"photoUrl\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/social-login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "social-login"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/social-login (apple, noauth)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "try {",
+                  "  const body = pm.response.json();",
+                  "  if (body.token) pm.collectionVariables.set('token', body.token);",
+                  "} catch (e) {}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"provider\": \"apple\",\n  \"idToken\": \"{{appleIdToken}}\",\n  \"email\": \"{{email}}\",\n  \"name\": \"{{username}}\",\n  \"photoUrl\": \"\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/social-login",

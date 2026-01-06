@@ -44,7 +44,7 @@ async function computeCurrentStreak(userId) {
   return streak;
 }
 
-async function buildProfilePayload(userId) {
+export async function buildProfilePayload(userId) {
   const user = await RegisterUser.findById(userId)
     .populate("badges", "name imageUrl description criteria level")
     .lean();

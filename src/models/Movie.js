@@ -68,6 +68,12 @@ const MovieSchema = new Schema(
       trim: true,
     },
 
+    // Ambience JSON for controlling environment during movie playback
+    ambienceJson: {
+      type: Schema.Types.Mixed,
+      default: null,
+    },
+
     isActive: {
       type: Boolean,
       default: true,
