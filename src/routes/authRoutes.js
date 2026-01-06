@@ -263,20 +263,54 @@ router.get("/ping", authMiddleware, async (req, res) => {
 });
 
 // Unified Social Login endpoint
+// Test tokens and user data for social login
+const TEST_SOCIAL = {
+  google: {
+    idToken:
+      "eyJhbGciOiJSUzI1NiIsImtpZCI6IjRiYTZlZmVmNWUxNzIxNDk5NzFhMmQzYWJiNWYzMzJlMGY3ODcxNjUiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIyNzI4MzMzNDE4MDktY2xsdXNxOHRocTJqbDlzczFjZzJtbHNkZjVmZTloZTMuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiIyNzI4MzMzNDE4MDktY2xsdXNxOHRocTJqbDlzczFjZzJtbHNkZjVmZTloZTMuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDcyNzI3MDM3ODczMzIyODIxMzQiLCJlbWFpbCI6InNocmVleWFzaHNqOEBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiYXRfaGFzaCI6ImpFSkJxUENhcC1hTUwwZFMxQ3VzR3ciLCJub25jZSI6IjJNeUx5VTQ1N09LUWVuTzFob25pV3VHM2dKX1NlYTZmUnVOdW1aMWR1SEEiLCJuYW1lIjoiU2hyZWUgU2hyZWUiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jS2t0TE5HZFI5R3RPMnl2WTN4bHpaR1pCX1R0VzJldUU3cTRQZE1rN2NUN2dyaS1RPXM5Ni1jIiwiZ2l2ZW5fbmFtZSI6IlNocmVlIiwiZmFtaWx5X25hbWUiOiJTaHJlZSIsImlhdCI6MTc2NzYzODgzOCwiZXhwIjoxNzY3NjQyNDM4fQ.sMu7LZSnKE95TVD-S38kh_TFWRFpZaDyuR3y3J8AsvCRh_FtEv_GrGZXD1VKOdqUeffGnaPNOOSW5rmmnhm3_-SsQtS95hqadDrcHkNQPnd9KvbBEYUM65VW3",
+    email: "shreeyashsj8@gmail.com",
+    name: "Shree Shree",
+    photoUrl:
+      "https://lh3.googleusercontent.com/a/ACg8ocKktLNGdR9GtO2yvY3xlzZGZB_TtW2euE7q4PdMk7cT7gri-Q=s1337",
+  },
+  apple: {
+    idToken:
+      "eyJraWQiOiJiRnd6bGVSOHRmIiwiYWxnIjoiUlMyNTYifQ.eyJpc3MiOiJodHRwczovL2FwcGxlaWQuYXBwbGUuY29tIiwiYXVkIjoiY29tLmFydnlheC5hcHAiLCJleHAiOjE3Njc3MjUyNTcsImlhdCI6MTc2NzYzODg1Nywic3ViIjoiMDAwMDM3LmE0MWEyNzgwOGNlNTRmMWI5N2U4ODVlNzEzMGYzOTQ0LjE4MzUiLCJjX2hhc2giOiJYRmRpbEJqeGpDbV8yMTJBWUhzcU9BIiwiZW1haWwiOiJqZWp1cmthcnNocmVleWFzaEBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiYXV0aF90aW1lIjoxNzY3NjM4ODU3LCJub25jZV9zdXBwb3J0ZWQiOnRydWV9.BK6ciYNuSuIBvC9OINdB5rZx5ZrF8B4jmB3IAb6GW1nRLPWJI3u1QtjoYO7xx6dYqk-2p5WB6S75MRNnDLDsj11gqPgTMSni7IZMWKvdkFjlGgbU7iTAAgUt_u6S-I3gysF-F_d6nR_cIUkds1uTS6vsmdCkU23aGxYTI1Mi3N92Qmg3RkPcPm2DTry5qPBP43T9y_23tKXdVzs6Hyf1CHnriRE_73iY39AVmqJpZDH8LOEwMQe3o-agzNNFtmN4SIa7mko5grRT-X5Ve42ZbFZ9Smp5AOvvwcI5AZaBMsqSAith4osESThA4_YG_fXX38MnGIIiVISSz_dVLfVb9g",
+    email: null,
+    name: null,
+    photoUrl: null,
+  },
+};
+
 router.post(
   "/social-login",
   validateBody(socialLoginSchema),
   tryCatch(async (req, res) => {
-    const {
+    let {
       provider,
       idToken,
+      accessToken,
       email: fallbackEmail,
       name: fallbackName,
       photoUrl: fallbackPhoto,
     } = req.body;
 
+    // If no idToken provided, use test data for the provider
+    if (
+      (!provider || (!idToken && !accessToken)) &&
+      process.env.NODE_ENV !== "production"
+    ) {
+      provider = provider || "google"; // default to google if not specified
+      if (TEST_SOCIAL[provider]) {
+        idToken = TEST_SOCIAL[provider].idToken;
+        fallbackEmail = TEST_SOCIAL[provider].email;
+        fallbackName = TEST_SOCIAL[provider].name;
+        fallbackPhoto = TEST_SOCIAL[provider].photoUrl;
+      }
+    }
+
     // Verify provider token and get normalized profile
-    const profile = await verifySocialLogin(provider, { idToken });
+    const profile = await verifySocialLogin(provider, { idToken, accessToken });
 
     const email = profile.email || fallbackEmail || "";
     const name = profile.name || fallbackName || "User";

@@ -17,27 +17,226 @@ async function getJson(url, headers = {}) {
 }
 
 // Verify Google ID Token using tokeninfo endpoint
-async function verifyGoogle({ idToken }) {
-  if (!idToken) throw new Error("idToken is required for google");
-  const data = await getJson(
-    `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(
-      idToken
-    )}`
-  );
-  // Optionally assert aud if configured
-  if (GOOGLE_CLIENT_ID && data.aud !== GOOGLE_CLIENT_ID) {
-    throw new Error("Google token audience mismatch");
+async function verifyGoogle({ idToken, accessToken }) {
+  const normalizedAccessToken =
+    typeof accessToken === "string" ? accessToken.trim() : "";
+  const normalizedIdToken = typeof idToken === "string" ? idToken.trim() : "";
+
+  // Treat empty strings as not provided
+  accessToken = normalizedAccessToken.length
+    ? normalizedAccessToken
+    : undefined;
+  idToken = normalizedIdToken.length ? normalizedIdToken : undefined;
+
+  if (!idToken && !accessToken) {
+    const err = new Error("Provide google idToken or accessToken");
+    err.statusCode = 400;
+    throw err;
   }
+
+  // If caller provided only accessToken, verify via userinfo
+  if (!idToken && accessToken) {
+    return verifyGoogleAccessToken({ accessToken });
+  }
+
+  // Sanitize (Postman / logs sometimes introduce whitespace/newlines/quotes)
+  let tokenStr = String(idToken).trim();
+  if (
+    (tokenStr.startsWith('"') && tokenStr.endsWith('"')) ||
+    (tokenStr.startsWith("'") && tokenStr.endsWith("'"))
+  ) {
+    tokenStr = tokenStr.slice(1, -1).trim();
+  }
+  // Remove any accidental whitespace inside the token
+  tokenStr = tokenStr.replace(/\s+/g, "");
+
+  const parts = tokenStr.split(".");
+  console.log("verifyGoogle idToken meta:", {
+    length: tokenStr.length,
+    parts: parts.length,
+    partLengths: parts.map((p) => p.length),
+    head: tokenStr.slice(0, 16),
+    tail: tokenStr.slice(-16),
+  });
+
+  if (parts.length !== 3) {
+    throw new Error(
+      "Invalid Google idToken format (expected 3 JWT parts). Token may be truncated."
+    );
+  }
+
+  // Decode header to help diagnose signature failures (no secrets here)
+  try {
+    const headerJson = JSON.parse(
+      Buffer.from(parts[0].replace(/-/g, "+").replace(/_/g, "/"), "base64")
+        .toString("utf8")
+        .trim()
+    );
+    console.log("verifyGoogle jwt header:", {
+      alg: headerJson?.alg,
+      kid: headerJson?.kid,
+      typ: headerJson?.typ,
+    });
+  } catch {
+    // ignore header parse failures
+  }
+
+  // Decode signature length (RS256 signature should decode to 256 bytes)
+  let sigBytes = null;
+  try {
+    const sigB64 = parts[2].replace(/-/g, "+").replace(/_/g, "/");
+    const sig = Buffer.from(
+      sigB64 + "==".slice(0, (4 - (sigB64.length % 4)) % 4),
+      "base64"
+    );
+    sigBytes = sig.length;
+    console.log("verifyGoogle signature bytes:", sigBytes);
+  } catch {
+    // ignore
+  }
+
+  // If signature is clearly truncated/corrupted, don't even attempt verification.
+  // For RS256 with Google's current keys, signature bytes should be 256.
+  if (sigBytes !== null && sigBytes !== 256) {
+    if (accessToken) {
+      console.warn(
+        "Google idToken signature looks invalid; falling back to accessToken verification"
+      );
+      return verifyGoogleAccessToken({ accessToken });
+    }
+    const err = new Error(
+      `Google idToken appears truncated/corrupted (signature bytes ${sigBytes}, expected 256). If you are testing via Postman, set googleAccessToken and resend; otherwise send a fresh idToken directly from the app without copy/paste.`
+    );
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const GOOGLE_JWKS = createRemoteJWKSet(
+    new URL("https://www.googleapis.com/oauth2/v3/certs")
+  );
+
+  const options = {
+    issuer: ["https://accounts.google.com", "accounts.google.com"],
+    clockTolerance: 10, // seconds
+  };
+  if (GOOGLE_CLIENT_ID) options.audience = GOOGLE_CLIENT_ID;
+
+  let payload;
+  try {
+    ({ payload } = await jwtVerify(tokenStr, GOOGLE_JWKS, options));
+  } catch (err) {
+    // Extra hint: check if the token's kid exists in Google's JWKS
+    try {
+      const headerJson = JSON.parse(
+        Buffer.from(parts[0].replace(/-/g, "+").replace(/_/g, "/"), "base64")
+          .toString("utf8")
+          .trim()
+      );
+      const kid = headerJson?.kid;
+      if (kid) {
+        const jwksRes = await fetch(
+          "https://www.googleapis.com/oauth2/v3/certs"
+        );
+        const jwks = await jwksRes.json();
+        const kids = Array.isArray(jwks?.keys)
+          ? jwks.keys.map((k) => k.kid).filter(Boolean)
+          : [];
+        console.log("verifyGoogle jwks kid match:", {
+          tokenKid: kid,
+          jwksKidsCount: kids.length,
+          kidFound: kids.includes(kid),
+        });
+      }
+    } catch {
+      // ignore
+    }
+
+    // Fallback to tokeninfo to aid debugging when JWT verification fails.
+    try {
+      const data = await getJson(
+        `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(
+          tokenStr
+        )}`
+      );
+      // If tokeninfo works, map its response.
+      if (GOOGLE_CLIENT_ID && data.aud && data.aud !== GOOGLE_CLIENT_ID) {
+        throw new Error("Google token audience mismatch");
+      }
+      return {
+        provider: "google",
+        providerId: data.sub,
+        email: data.email,
+        emailVerified:
+          String(data.email_verified) === "true" ||
+          data.email_verified === true,
+        name: data.name || "",
+        photoUrl: data.picture || "",
+      };
+    } catch (fallbackErr) {
+      if (accessToken) {
+        console.warn(
+          "Google idToken verification failed; falling back to accessToken verification"
+        );
+        return verifyGoogleAccessToken({ accessToken });
+      }
+      throw err;
+    }
+  }
+
   return {
     provider: "google",
     // IMPORTANT: `sub` is the stable Google user identifier for this account.
     // We store this value in Mongo as `user.googleId` and DO NOT store the idToken itself.
-    providerId: data.sub,
-    email: data.email,
+    providerId: payload.sub,
+    email: payload.email || "",
     emailVerified:
-      String(data.email_verified) === "true" || data.email_verified === true,
-    name: data.name || "",
-    photoUrl: data.picture || "",
+      payload.email_verified === "true" || payload.email_verified === true,
+    name: payload.name || "",
+    photoUrl: payload.picture || "",
+  };
+}
+
+async function verifyGoogleAccessToken({ accessToken }) {
+  if (!accessToken) throw new Error("accessToken is required for google");
+
+  // Validate token audience (recommended)
+  const info = await getJson(
+    `https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${encodeURIComponent(
+      String(accessToken).trim()
+    )}`
+  );
+
+  const tokenAud = info?.aud || info?.audience || info?.issued_to || "";
+  if (
+    GOOGLE_CLIENT_ID &&
+    tokenAud &&
+    String(tokenAud).trim() !== String(GOOGLE_CLIENT_ID).trim()
+  ) {
+    const err = new Error("Google access token audience mismatch");
+    err.statusCode = 401;
+    throw err;
+  }
+
+  // Fetch profile
+  const profile = await getJson(
+    "https://openidconnect.googleapis.com/v1/userinfo",
+    { Authorization: `Bearer ${String(accessToken).trim()}` }
+  );
+
+  if (!profile?.sub) {
+    const err = new Error("Invalid Google access token");
+    err.statusCode = 401;
+    throw err;
+  }
+
+  return {
+    provider: "google",
+    providerId: profile.sub,
+    email: profile.email || "",
+    emailVerified:
+      profile.email_verified === true || profile.email_verified === "true",
+    name: profile.name || "",
+    photoUrl: profile.picture || "",
   };
 }
 

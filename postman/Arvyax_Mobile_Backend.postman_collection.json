@@ -30,7 +30,33 @@
     { "key": "cardId", "value": "" },
     { "key": "subId", "value": "" },
     { "key": "taskId", "value": "" },
-    { "key": "journalTaskId", "value": "" }
+    { "key": "journalTaskId", "value": "" },
+    {
+      "key": "journalQuestionsPayload",
+      "value": "{\n  \"dateKey\": \"{{date}}\",\n  \"mistakes\": \"\",\n  \"whatDidYouLearn\": \"\",\n  \"anythingSpecialHappenedToday\": {\n    \"aboutIt\": \"\",\n    \"photos\": []\n  }\n}"
+    },
+    {
+      "key": "googleIdToken",
+      "value": ""
+    },
+    {
+      "key": "googleAccessToken",
+      "value": ""
+    },
+    { "key": "test_google_email", "value": "shreeyashsj8@gmail.com" },
+    { "key": "test_google_name", "value": "Shree Shree" },
+    {
+      "key": "test_google_photo_url",
+      "value": "https://lh3.googleusercontent.com/a/ACg8ocKktLNGdR9GtO2yvY3xlzZGZB_TtW2euE7q4PdMk7cT7gri-Q=s1337"
+    },
+    {
+      "key": "appleIdToken",
+      "value": "eyJraWQiOiJiRnd6bGVSOHRmIiwiYWxnIjoiUlMyNTYifQ.eyJpc3MiOiJodHRwczovL2FwcGxlaWQuYXBwbGUuY29tIiwiYXVkIjoiY29tLmFydnlheC5hcHAiLCJleHAiOjE3Njc4MTIxNzYsImlhdCI6MTc2NzcyNTc3Niwic3ViIjoiMDAwMDM3LmE0MWEyNzgwOGNlNTRmMWI5N2U4ODVlNzEzMGYzOTQ0LjE4MzUiLCJjX2hhc2giOiIweHJzcERTUF9vWVZlNXdrZUs3TjVnIiwiZW1haWwiOiJqZWp1cmthcnNocmVleWFzaEBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiYXV0aF90aW1lIjoxNzY3NzI1Nzc2LCJub25jZV9zdXBwb3J0ZWQiOnRydWV9.RWvUdDmFf3BkodI2RdSQQLb_DOEAVRmuEa6spTxrDTshNFf1O3A7MkHk7PgCQsfJWiJUEEn0pgj3ZeknQbPnvBs8MVCu8zVvCXHuqGaQBFNbIQvwPuBgiVoNE-oUJHa41ZI-SGPDqIpOzLeJQ5c_HQW06QXsZ6Fg-dTpCzVSCpB7zaSDEkQIvQ0dEU9JwQX9Pf1y4ll2Rm-QqN5F-SUUijKl3n41CXEn6hK0n6ntJN1braSziFmkhVcojl-zK3HU3xAWvORj7BWI86Ow7ZhL9G2OWo2lL2gxAMwzjrphsoE2dgz-s4cyhAIkQ6r_mcL36HP5ntz4jJ-3M0QRCK2z0w"
+    },
+    {
+      "key": "test_apple_user_id",
+      "value": "000037.a41a27808ce54f1b97e885e7130f3944.1835"
+    }
   ],
   "auth": {
     "type": "bearer",
@@ -259,7 +285,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"provider\": \"google\",\n  \"idToken\": \"{{googleIdToken}}\",\n  \"email\": \"{{email}}\",\n  \"name\": \"{{username}}\",\n  \"photoUrl\": \"\"\n}"
+              "raw": "{\n  \"provider\": \"google\",\n  \"idToken\": \"{{googleIdToken}}\",\n  \"accessToken\": \"{{googleAccessToken}}\",\n  \"email\": \"{{email}}\",\n  \"name\": \"{{username}}\",\n  \"photoUrl\": \"\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/social-login",
@@ -477,15 +503,34 @@
           "name": "PUT /api/journal/questions (auth)",
           "request": {
             "method": "PUT",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
-              "mode": "raw",
-              "raw": "{\n  \"dateKey\": \"{{date}}\",\n  \"mistakes\": \"\",\n  \"whatDidYouLearn\": \"\",\n  \"anythingSpecialHappenedToday\": {\n    \"aboutIt\": \"\",\n    \"photos\": [\"https://example.com/photo1.jpg\"]\n  }\n}"
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "payload",
+                  "value": "{{journalQuestionsPayload}}",
+                  "type": "text"
+                },
+                { "key": "image", "type": "file", "src": "" },
+                { "key": "image", "type": "file", "src": "" }
+              ]
             },
             "url": {
               "raw": "{{baseUrl}}/api/journal/questions",
               "host": ["{{baseUrl}}"],
               "path": ["api", "journal", "questions"]
+            }
+          }
+        },
+
+        {
+          "name": "GET /api/journal/history (auth)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/journal/history",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "journal", "history"]
             }
           }
         }

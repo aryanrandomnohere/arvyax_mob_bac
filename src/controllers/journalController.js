@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import RegisterUser from "../models/UserModel.js";
 import JournalEntry from "../models/JournalEntry.js";
+import { uploadUserImageToR2 } from "../utils/r2Upload.js";
 
 function utcDateKey(date) {
   const year = date.getUTCFullYear();
@@ -169,6 +170,21 @@ export const getActiveJournals = async (req, res) => {
 };
 
 /**
+ * GET /api/journal/history
+ * Returns all stored journal entries for the user (newest first).
+ */
+export const getJournalHistory = async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+  const entries = await JournalEntry.find({ user: userId })
+    .sort({ dateKey: -1, createdAt: -1 })
+    .lean();
+
+  return res.json({ journals: (entries ?? []).map((e) => mapEntry(e)) });
+};
+
+/**
  * GET /api/journal/incomplete
  * Returns only the days where at least one task is not completed.
  */
@@ -297,10 +313,32 @@ export const upsertJournalQuestionsForDate = async (req, res) => {
     anythingSpecialHappenedToday: {
       aboutIt: String(anythingSpecialHappenedToday?.aboutIt ?? "").trim(),
       photos: Array.isArray(anythingSpecialHappenedToday?.photos)
-        ? anythingSpecialHappenedToday.photos.map((p) => String(p ?? "").trim())
+        ? anythingSpecialHappenedToday.photos
+            .map((p) => String(p ?? "").trim())
+            .filter(Boolean)
         : [],
     },
   };
+
+  // Optional: accept one or more image files in multipart payload and upload to R2.
+  const files = [];
+  if (Array.isArray(req.files)) {
+    files.push(...req.files);
+  } else if (req.files && typeof req.files === "object") {
+    if (Array.isArray(req.files.image)) files.push(...req.files.image);
+    if (Array.isArray(req.files.images)) files.push(...req.files.images);
+  }
+  if (req.file) files.push(req.file);
+
+  for (const file of files) {
+    const uploaded = await uploadUserImageToR2({
+      userId,
+      dateKey: key,
+      file,
+      prefix: "mobile-user-images/journal-questions",
+    });
+    questions.anythingSpecialHappenedToday.photos.push(uploaded.url);
+  }
 
   const entry = await JournalEntry.findOneAndUpdate(
     { user: userId, dateKey: key },
