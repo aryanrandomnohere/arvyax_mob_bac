@@ -6,6 +6,9 @@ import { generateOtp, hashOtp, verifyOtp } from "../utils/otpService.js";
 import { sendOtpEmail, sendWelcomeEmail } from "../utils/emailService.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import UserActivityDay from "../models/UserActivityDay.js";
+import FeelingLog from "../models/FeelingLog.js";
+import JournalEntry from "../models/JournalEntry.js";
+import JournalTask from "../models/JournalTask.js";
 import { tryCatch, validateBody } from "../utils/http.js";
 import {
   registerSchema,
@@ -74,7 +77,7 @@ router.post(
       console.error(err);
       return res.status(500).json({ error: "Server error" });
     }
-  })
+  }),
 );
 
 router.post(
@@ -134,7 +137,7 @@ router.post(
       console.error("OTP VERIFY ERROR:", err);
       return res.status(500).json({ error: "Server error" });
     }
-  })
+  }),
 );
 
 router.post(
@@ -170,7 +173,7 @@ router.post(
       console.error("LOGIN OTP ERROR:", err);
       return res.status(500).json({ error: "Server error" });
     }
-  })
+  }),
 );
 
 router.post(
@@ -219,7 +222,7 @@ router.post(
       console.error("LOGIN VERIFY ERROR:", err);
       return res.status(500).json({ error: "Server error" });
     }
-  })
+  }),
 );
 
 router.post(
@@ -251,13 +254,13 @@ router.post(
       console.error("ONBOARDING ERROR:", err);
       return res.status(500).json({ error: "Server error" });
     }
-  })
+  }),
 );
 
 router.get("/ping", authMiddleware, async (req, res) => {
   const now = new Date();
   const dateKey = `${now.getUTCFullYear()}-${String(
-    now.getUTCMonth() + 1
+    now.getUTCMonth() + 1,
   ).padStart(2, "0")}-${String(now.getUTCDate()).padStart(2, "0")}`;
   return res.json({ active: true, dateKey });
 });
@@ -323,7 +326,7 @@ router.post(
     if (provider === "apple") query.push({ appleId: profile.providerId });
 
     let user = await RegisterUser.findOne(
-      query.length ? { $or: query } : { _id: null }
+      query.length ? { $or: query } : { _id: null },
     );
     let isNewUser = false;
 
@@ -396,7 +399,40 @@ router.post(
       profile: profilePayload,
       provider,
     });
-  })
+  }),
+);
+
+// Account deletion endpoint (required for Sign in with Apple compliance)
+// Deletes the currently authenticated user's account and associated data.
+router.delete(
+  "/account",
+  authMiddleware,
+  tryCatch(async (req, res) => {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const user = await RegisterUser.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    await Promise.all([
+      FeelingLog.deleteMany({ user: userId }),
+      JournalEntry.deleteMany({ user: userId }),
+      JournalTask.deleteMany({ user: userId }),
+      UserActivityDay.deleteMany({ user: userId }),
+    ]);
+
+    await RegisterUser.findByIdAndDelete(userId);
+
+    return res.json({
+      success: true,
+      message: "Account deleted successfully",
+      userId,
+    });
+  }),
 );
 
 export default router;

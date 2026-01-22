@@ -7,6 +7,7 @@
   "variable": [
     { "key": "baseUrl", "value": "http://localhost:3000" },
     { "key": "token", "value": "" },
+    { "key": "deletedUserId", "value": "" },
     { "key": "email", "value": "test@example.com" },
     { "key": "username", "value": "Test User" },
     { "key": "otp", "value": "" },
@@ -259,6 +260,34 @@
               "raw": "{{baseUrl}}/api/auth/ping",
               "host": ["{{baseUrl}}"],
               "path": ["api", "auth", "ping"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/auth/account (auth, Apple compliance)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "try {",
+                  "  const body = pm.response.json();",
+                  "  if (body.userId) pm.collectionVariables.set('deletedUserId', String(body.userId));",
+                  "  // Clear token so subsequent requests don't accidentally reuse it",
+                  "  pm.collectionVariables.set('token', '');",
+                  "} catch (e) {}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/account",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "account"]
             }
           }
         },
