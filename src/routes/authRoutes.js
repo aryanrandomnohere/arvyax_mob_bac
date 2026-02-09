@@ -18,7 +18,10 @@ import {
   socialLoginSchema,
 } from "../validation/authSchemas.js";
 import { verifySocialLogin } from "../utils/socialAuthService.js";
-import { buildProfilePayload } from "../controllers/profileController.js";
+import {
+  buildMinimalProfilePayload,
+  buildProfilePayload,
+} from "../controllers/profileController.js";
 
 const router = Router();
 
@@ -128,10 +131,12 @@ router.post(
         expiresIn: "1000h",
       });
 
+      const profile = await buildMinimalProfilePayload(String(newUser._id));
+
       return res.json({
         message: "OTP verified successfully. Proceed with onboarding.",
         token,
-        user: newUser,
+        profile,
       });
     } catch (err) {
       console.error("OTP VERIFY ERROR:", err);
@@ -213,10 +218,12 @@ router.post(
         console.warn("ACTIVITY MARK ERROR (LOGIN VERIFY):", err);
       }
 
+      const profile = await buildMinimalProfilePayload(String(user._id));
+
       return res.json({
         message: "Login successful",
         token,
-        user,
+        profile,
       });
     } catch (err) {
       console.error("LOGIN VERIFY ERROR:", err);

@@ -562,6 +562,61 @@
               "path": ["api", "journal", "history"]
             }
           }
+        },
+        {
+          "name": "GET /api/journal/stats/total-tasks (auth)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/journal/stats/total-tasks",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "journal", "stats", "total-tasks"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/journal/stats/average-daily-tasks (auth)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/journal/stats/average-daily-tasks",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "journal", "stats", "average-daily-tasks"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/journal/milestones (auth)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/journal/milestones",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "journal", "milestones"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/journal/learnings (auth)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/journal/learnings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "journal", "learnings"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/journal/stats/daily-questions (auth)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/journal/stats/daily-questions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "journal", "stats", "daily-questions"]
+            }
+          }
         }
       ]
     },

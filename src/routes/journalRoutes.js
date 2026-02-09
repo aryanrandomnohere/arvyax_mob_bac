@@ -13,6 +13,11 @@ import {
   appendJournalTaskForDate,
   updateJournalTaskStatus,
   upsertJournalQuestionsForDate,
+  getTotalTaskStats,
+  getAverageDailyTaskStats,
+  getJournalMilestones,
+  getJournalLearnings,
+  getDailyQuestionStats,
 } from "../controllers/journalController.js";
 
 import {
@@ -90,7 +95,7 @@ router.get(
   "/journal",
   authMiddleware,
   validateQuery(journalDateQuerySchema),
-  tryCatch(getJournalForDate)
+  tryCatch(getJournalForDate),
 );
 
 // Get today's journal + all days with any incomplete tasks.
@@ -104,14 +109,14 @@ router.post(
   "/journal/tasks/batch",
   authMiddleware,
   validateBody(upsertJournalTasksSchema),
-  tryCatch(upsertJournalTasksForDate)
+  tryCatch(upsertJournalTasksForDate),
 );
 
 // List days where at least one task is not completed.
 router.get(
   "/journal/incomplete",
   authMiddleware,
-  tryCatch(listIncompleteJournalDays)
+  tryCatch(listIncompleteJournalDays),
 );
 
 // Append a new task to a day (defaults to today).
@@ -119,7 +124,7 @@ router.post(
   "/journal/tasks",
   authMiddleware,
   validateBody(appendJournalTaskSchema),
-  tryCatch(appendJournalTaskForDate)
+  tryCatch(appendJournalTaskForDate),
 );
 
 // Update task status.
@@ -127,7 +132,7 @@ router.patch(
   "/journal/tasks/:taskId",
   authMiddleware,
   validateBody(updateJournalTaskStatusSchema),
-  tryCatch(updateJournalTaskStatus)
+  tryCatch(updateJournalTaskStatus),
 );
 
 // Upsert daily questions for a day (defaults to today).
@@ -140,7 +145,38 @@ router.put(
   ]),
   parseMultipartPayload,
   validateBody(upsertJournalQuestionsSchema),
-  tryCatch(upsertJournalQuestionsForDate)
+  tryCatch(upsertJournalQuestionsForDate),
+);
+
+// Get total tasks statistics.
+router.get(
+  "/journal/stats/total-tasks",
+  authMiddleware,
+  tryCatch(getTotalTaskStats),
+);
+
+// Get average daily tasks statistics.
+router.get(
+  "/journal/stats/average-daily-tasks",
+  authMiddleware,
+  tryCatch(getAverageDailyTaskStats),
+);
+
+// Get all milestones (anythingSpecialHappenedToday) by day.
+router.get(
+  "/journal/milestones",
+  authMiddleware,
+  tryCatch(getJournalMilestones),
+);
+
+// Get all learnings (whatDidYouLearn) by day.
+router.get("/journal/learnings", authMiddleware, tryCatch(getJournalLearnings));
+
+// Get stats for days with learning/mistakes answers.
+router.get(
+  "/journal/stats/daily-questions",
+  authMiddleware,
+  tryCatch(getDailyQuestionStats),
 );
 
 export default router;

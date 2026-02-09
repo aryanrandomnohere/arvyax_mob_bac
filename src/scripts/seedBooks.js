@@ -16,15 +16,28 @@ const seedBooks = async () => {
         genre: ["Poetry", "Classics"],
         year: 1867,
         rating: 0,
-        pages: 0,
+        pages: 211,
         isbn: "DO-ARNOLD-DOVER-BEACH",
         coverUrl:
           "https://pub-471d577e2a1645a3b80ea2e8ab0fb6b5.r2.dev/books/dover_beach/Dover%20Beach%20and%20Other%20Poems%20-%20Matthew%20Arnold.jpeg",
-        readUrl:
-          "https://pub-471d577e2a1645a3b80ea2e8ab0fb6b5.r2.dev/books/dover_beach/arnold-dover-beach.pdf",
+        immersiveMode: {
+          enabled: true,
+          videoUrl:
+            "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/videos/hls/4b6d4f16-a0ee-4788-a349-b091cced90d8/playlist.m3u8",
+          ambienceJson: null,
+        },
+        quietMode: {
+          enabled: true,
+          pdfUrl:
+            "https://pub-471d577e2a1645a3b80ea2e8ab0fb6b5.r2.dev/books/dover_beach/arnold-dover-beach.pdf",
+          audioUrl:
+            "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/ambience_pose_audios/1769333974734-ambience-9083c336-4c50-49d0-87e1-b4b610cc398c-doverbeachaudio.mp3",
+          audioDuration: 1058,
+        },
         isActive: true,
         order: 1,
       },
+      //Numberofwords
       {
         title: "Robinson Crusoe",
         description:
@@ -33,12 +46,24 @@ const seedBooks = async () => {
         genre: ["Classics", "Adventure"],
         year: 1719,
         rating: 0,
-        pages: 0,
+        pages: 89000,
         isbn: "DO-DEFOE-ROBINSON-CRUSOE",
         coverUrl:
-          "https://pub-471d577e2a1645a3b80ea2e8ab0fb6b5.r2.dev/books/robinson_crusoe/Robinson.jpeg",
-        readUrl:
-          "https://pub-471d577e2a1645a3b80ea2e8ab0fb6b5.r2.dev/books/robinson_crusoe/ROBINSON%20CRUSOE%20BY%20DANIEL%20DEFOEW.pdf",
+          "https://pub-471d577e2a1645a3b80ea2e8ab0fb6b5.r2.dev/books/robinson_crusoe/Robinson.peg",
+        immersiveMode: {
+          enabled: true,
+          videoUrl:
+            "https://pub-471d577e2a1645a3b80ea2e8ab0fb6b5.r2.dev/books/robinson_crusoe/robinson%20-%20Made%20with%20Clipchamp.mp4",
+          ambienceJson: null,
+        },
+        quietMode: {
+          enabled: true,
+          pdfUrl:
+            "https://pub-471d577e2a1645a3b80ea2e8ab0fb6b5.r2.dev/books/robinson_crusoe/ROBINSON%20CRUSOE%20BY%20DANIEL%20DEFOEW.pdf",
+          audioUrl:
+            "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/ambience_pose_audios/1769334003159-ambience-45a1726c-c820-4d17-8699-28753037e128-robinsoncursoeaudio.mp3",
+          audioDuration: 2460,
+        },
         isActive: true,
         order: 2,
       },
@@ -50,14 +75,56 @@ const seedBooks = async () => {
         genre: ["Poetry", "Classics"],
         year: 1845,
         rating: 0,
-        pages: 0,
+        pages: 1152,
         isbn: "DO-POE-THE-RAVEN",
         coverUrl:
           "https://pub-471d577e2a1645a3b80ea2e8ab0fb6b5.r2.dev/books/the_raven/The%20Raven%20Book%20Cover%20-%20Elizabeth%20Underwood.jpeg",
-        readUrl:
-          "https://pub-471d577e2a1645a3b80ea2e8ab0fb6b5.r2.dev/books/the_raven/the-works-of-edgar-allan-poe-078-the-raven.pdf",
+        immersiveMode: {
+          enabled: true,
+          videoUrl:
+            "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/videos/hls/eb53251e-10d1-4381-8e1c-9807a8e365b5/playlist.m3u8",
+          ambienceJson: null,
+        },
+        quietMode: {
+          enabled: true,
+          pdfUrl:
+            "https://pub-471d577e2a1645a3b80ea2e8ab0fb6b5.r2.dev/books/the_raven/the-works-of-edgar-allan-poe-078-the-raven.pdf",
+          audioUrl:
+            "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/ambience_pose_audios/1769333984073-ambience-cf93398e-0b1f-42f3-8c4e-2a40684eff2c-theravenaudio.mp3",
+          audioDuration: 5161,
+        },
         isActive: true,
         order: 3,
+      },
+      //
+      {
+        title: "The Jungle Book",
+        description:
+          "Rudyard Kipling's classic collection of stories featuring Mowgli and the animals of the jungle.",
+        author: "Rudyard Kipling",
+        genre: ["Classics", "Adventure", "Children"],
+        year: 1894,
+        rating: 0,
+        pages: 19200,
+        isbn: "KIPLING-THE-JUNGLE-BOOK",
+        coverUrl:
+          "https://pub-471d577e2a1645a3b80ea2e8ab0fb6b5.r2.dev/books/jungle_book/The%20Jungle%20Book%20(Collector's%20Edition)%20(Laminated%20Hardback%20with%20Jacket).jpeg",
+        immersiveMode: {
+          enabled: true,
+          videoUrl:
+            "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/videos/hls/8c9cdf33-ab1c-43bc-a8ca-8a21835995df/playlist.m3u8",
+          ambienceJson: null,
+        },
+        quietMode: {
+          enabled: true,
+          pdfUrl:
+            "https://pub-471d577e2a1645a3b80ea2e8ab0fb6b5.r2.dev/books/jungle_book/The_Jungle_Book-Rudyard_Kipling.pdf",
+          audioUrl:
+            "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/ambience_pose_audios/1769333951443-ambience-ff328ec6-a5b8-4961-a265-20969c30e3ea-mowgliaudio.mp3",
+          audioDuration: 640,
+        },
+        isActive: true,
+        order: 4,
       },
     ];
 

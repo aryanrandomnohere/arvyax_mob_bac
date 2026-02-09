@@ -24,7 +24,7 @@ function dateKeyToUtcDate(dateKey) {
 async function touchJournalLastUpdatedAt(userId) {
   await RegisterUser.updateOne(
     { _id: userId },
-    { $set: { journalLastUpdatedAt: new Date() } }
+    { $set: { journalLastUpdatedAt: new Date() } },
   );
 }
 
@@ -78,7 +78,7 @@ export const getJournalForDate = async (req, res) => {
 
   const todayKey = utcDateKey(new Date());
   const dateKey = String(
-    req.validatedQuery?.date ?? req.query?.date ?? todayKey
+    req.validatedQuery?.date ?? req.query?.date ?? todayKey,
   );
 
   if (!dateKeyToUtcDate(dateKey)) {
@@ -127,7 +127,7 @@ export const upsertJournalTasksForDate = async (req, res) => {
   const entry = await JournalEntry.findOneAndUpdate(
     { user: userId, dateKey: key },
     { $set: { tasks: normalizedTasks } },
-    { upsert: true, new: true, setDefaultsOnInsert: true }
+    { upsert: true, new: true, setDefaultsOnInsert: true },
   ).lean();
 
   await touchJournalLastUpdatedAt(userId);
@@ -343,10 +343,173 @@ export const upsertJournalQuestionsForDate = async (req, res) => {
   const entry = await JournalEntry.findOneAndUpdate(
     { user: userId, dateKey: key },
     { $set: { questions } },
-    { upsert: true, new: true, setDefaultsOnInsert: true }
+    { upsert: true, new: true, setDefaultsOnInsert: true },
   ).lean();
 
   await touchJournalLastUpdatedAt(userId);
 
   return res.json({ journal: mapEntry(entry) });
+};
+
+/**
+ * GET /api/journal/stats/total-tasks
+ * Returns total tasks count and completed tasks count for the user.
+ */
+export const getTotalTaskStats = async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+  const entries = await JournalEntry.find({ user: userId }).lean();
+
+  let totalTasks = 0;
+  let completedTasks = 0;
+
+  entries.forEach((entry) => {
+    if (entry.tasks && Array.isArray(entry.tasks)) {
+      totalTasks += entry.tasks.length;
+      completedTasks += entry.tasks.filter(
+        (task) => task.status === "completed",
+      ).length;
+    }
+  });
+
+  return res.json({
+    totalTasks,
+    completedTasks,
+  });
+};
+
+/**
+ * GET /api/journal/stats/average-daily-tasks
+ * Returns average daily tasks and average daily completed tasks for the user.
+ */
+export const getAverageDailyTaskStats = async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+  const entries = await JournalEntry.find({ user: userId }).lean();
+
+  if (entries.length === 0) {
+    return res.json({
+      averageDailyTasks: 0,
+      averageDailyCompleted: 0,
+      daysCount: 0,
+    });
+  }
+
+  let totalTasks = 0;
+  let totalCompleted = 0;
+
+  entries.forEach((entry) => {
+    if (entry.tasks && Array.isArray(entry.tasks)) {
+      totalTasks += entry.tasks.length;
+      totalCompleted += entry.tasks.filter(
+        (task) => task.status === "completed",
+      ).length;
+    }
+  });
+
+  const daysCount = entries.length;
+  const averageDailyTasks = Number((totalTasks / daysCount).toFixed(2));
+  const averageDailyCompleted = Number((totalCompleted / daysCount).toFixed(2));
+
+  return res.json({
+    averageDailyTasks,
+    averageDailyCompleted,
+    daysCount,
+  });
+};
+
+/**
+ * GET /api/journal/milestones
+ * Returns all milestone answers (anythingSpecialHappenedToday) by day.
+ */
+export const getJournalMilestones = async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+  const entries = await JournalEntry.find({ user: userId })
+    .select("dateKey questions.anythingSpecialHappenedToday")
+    .sort({ dateKey: -1 })
+    .lean();
+
+  const milestones = (entries ?? [])
+    .map((entry) => {
+      const aboutIt = String(
+        entry?.questions?.anythingSpecialHappenedToday?.aboutIt ?? "",
+      ).trim();
+      const photos = Array.isArray(
+        entry?.questions?.anythingSpecialHappenedToday?.photos,
+      )
+        ? entry.questions.anythingSpecialHappenedToday.photos
+        : [];
+
+      return {
+        dateKey: entry?.dateKey ?? null,
+        aboutIt,
+        photos,
+      };
+    })
+    .filter((item) => item.aboutIt.length > 0 || item.photos.length > 0);
+
+  return res.json({ milestones });
+};
+
+/**
+ * GET /api/journal/learnings
+ * Returns all learning answers (whatDidYouLearn) by day.
+ */
+export const getJournalLearnings = async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+  const entries = await JournalEntry.find({ user: userId })
+    .select("dateKey questions.whatDidYouLearn")
+    .sort({ dateKey: -1 })
+    .lean();
+
+  const learnings = (entries ?? [])
+    .map((entry) => ({
+      dateKey: entry?.dateKey ?? null,
+      whatDidYouLearn: String(entry?.questions?.whatDidYouLearn ?? "").trim(),
+    }))
+    .filter((item) => item.whatDidYouLearn.length > 0);
+
+  return res.json({ learnings });
+};
+
+/**
+ * GET /api/journal/stats/daily-questions
+ * Returns how many days have learning/mistakes answers.
+ */
+export const getDailyQuestionStats = async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+  const entries = await JournalEntry.find({ user: userId })
+    .select("dateKey questions.mistakes questions.whatDidYouLearn")
+    .lean();
+
+  let daysWithLearning = 0;
+  let daysWithMistakes = 0;
+  let daysAnswered = 0;
+
+  (entries ?? []).forEach((entry) => {
+    const learning = String(entry?.questions?.whatDidYouLearn ?? "").trim();
+    const mistakes = String(entry?.questions?.mistakes ?? "").trim();
+
+    const hasLearning = learning.length > 0;
+    const hasMistakes = mistakes.length > 0;
+
+    if (hasLearning) daysWithLearning += 1;
+    if (hasMistakes) daysWithMistakes += 1;
+    if (hasLearning || hasMistakes) daysAnswered += 1;
+  });
+
+  return res.json({
+    totalDays: entries.length,
+    daysAnswered,
+    daysWithLearning,
+    daysWithMistakes,
+  });
 };

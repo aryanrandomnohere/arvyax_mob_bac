@@ -15,7 +15,7 @@ function utcDateKey(date) {
 async function computeCurrentStreak(userId) {
   const today = new Date();
   const todayUtcMidnight = new Date(
-    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()),
   );
 
   const windowStart = new Date(todayUtcMidnight);
@@ -44,6 +44,53 @@ async function computeCurrentStreak(userId) {
   return streak;
 }
 
+/**
+ * Build minimal profile payload for OTP verification (signup/login)
+ * Returns only essential data: name, onboarding status, and current ambience
+ */
+export async function buildMinimalProfilePayload(userId) {
+  const user = await RegisterUser.findById(userId).lean();
+  if (!user) return null;
+
+  // Fetch ambience selection data for wallpaper
+  let currentAmbience = null;
+  const ambienceSelection = user.preferences?.ambienceSelections?.[0];
+  if (ambienceSelection?.categoryId) {
+    const ambienceCategory = await AmbienceCategory.findById(
+      ambienceSelection.categoryId,
+    ).lean();
+
+    if (ambienceCategory) {
+      const selectedTheme = ambienceSelection.themeId
+        ? ambienceCategory.themes?.find(
+            (t) => String(t._id) === String(ambienceSelection.themeId),
+          )
+        : null;
+
+      currentAmbience = {
+        categoryId: String(ambienceCategory._id),
+        categoryName: ambienceCategory.name,
+        categoryDescription: ambienceCategory.description,
+        categoryImage: ambienceCategory.images?.[0] ?? null,
+        themeId: ambienceSelection.themeId
+          ? String(ambienceSelection.themeId)
+          : null,
+        themeName: selectedTheme?.name ?? null,
+        themeImage: selectedTheme?.imageUrl ?? null,
+      };
+    }
+  }
+
+  return {
+    id: String(user._id),
+    name: String(user.username ?? ""),
+    nickname: String(user.preferences?.nickname ?? user.username ?? ""),
+    email: user.email ?? null,
+    onboardingCompleted: Boolean(user.onboardingCompleted),
+    currentAmbience,
+  };
+}
+
 export async function buildProfilePayload(userId) {
   const user = await RegisterUser.findById(userId)
     .populate("badges", "name imageUrl description criteria level")
@@ -58,11 +105,40 @@ export async function buildProfilePayload(userId) {
     .lean();
 
   const earnedBadgeIdSet = new Set(
-    (user.badges ?? []).map((badge) => String(badge?._id ?? badge))
+    (user.badges ?? []).map((badge) => String(badge?._id ?? badge)),
   );
 
   const currentLog = await FeelingLog.getCurrentOpenLog(userId);
   const currentStreak = await computeCurrentStreak(userId);
+
+  // Fetch ambience selection data for wallpaper
+  let currentAmbience = null;
+  const ambienceSelection = user.preferences?.ambienceSelections?.[0];
+  if (ambienceSelection?.categoryId) {
+    const ambienceCategory = await AmbienceCategory.findById(
+      ambienceSelection.categoryId,
+    ).lean();
+
+    if (ambienceCategory) {
+      const selectedTheme = ambienceSelection.themeId
+        ? ambienceCategory.themes?.find(
+            (t) => String(t._id) === String(ambienceSelection.themeId),
+          )
+        : null;
+
+      currentAmbience = {
+        categoryId: String(ambienceCategory._id),
+        categoryName: ambienceCategory.name,
+        categoryDescription: ambienceCategory.description,
+        categoryImage: ambienceCategory.images?.[0] ?? null,
+        themeId: ambienceSelection.themeId
+          ? String(ambienceSelection.themeId)
+          : null,
+        themeName: selectedTheme?.name ?? null,
+        themeImage: selectedTheme?.imageUrl ?? null,
+      };
+    }
+  }
 
   return {
     id: String(user._id),
@@ -80,6 +156,8 @@ export async function buildProfilePayload(userId) {
 
     gender: user.preferences?.gender ?? "",
     dob: user.preferences?.dob ?? null,
+
+    currentAmbience,
 
     badges: (user.badges ?? []).map((badge) => ({
       id: String(badge._id),
