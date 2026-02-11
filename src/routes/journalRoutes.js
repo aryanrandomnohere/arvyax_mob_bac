@@ -18,6 +18,7 @@ import {
   getJournalMilestones,
   getJournalLearnings,
   getDailyQuestionStats,
+  getMonthlyTaskDaysFilled,
 } from "../controllers/journalController.js";
 
 import {
@@ -26,6 +27,7 @@ import {
   appendJournalTaskSchema,
   updateJournalTaskStatusSchema,
   upsertJournalQuestionsSchema,
+  journalMonthQuerySchema,
 } from "../validation/journalSchemas.js";
 
 const router = express.Router();
@@ -177,6 +179,14 @@ router.get(
   "/journal/stats/daily-questions",
   authMiddleware,
   tryCatch(getDailyQuestionStats),
+);
+
+// Get monthly days with tasks filled.
+router.get(
+  "/journal/stats/monthly-days",
+  authMiddleware,
+  validateQuery(journalMonthQuerySchema),
+  tryCatch(getMonthlyTaskDaysFilled),
 );
 
 export default router;

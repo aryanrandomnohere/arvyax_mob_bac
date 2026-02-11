@@ -7,6 +7,13 @@ export const journalDateQuerySchema = z.object({
     .optional(),
 });
 
+export const journalMonthQuerySchema = z.object({
+  month: z
+    .string()
+    .regex(/^\d{4}-\d{2}$/, "Expected YYYY-MM")
+    .optional(),
+});
+
 const dateKeySchema = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD")

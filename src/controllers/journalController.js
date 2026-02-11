@@ -21,6 +21,28 @@ function dateKeyToUtcDate(dateKey) {
   return dt;
 }
 
+function parseMonthKey(monthKey) {
+  const match = String(monthKey ?? "").match(/^(\d{4})-(\d{2})$/);
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  if (!Number.isFinite(year) || !Number.isFinite(month)) return null;
+  if (month < 1 || month > 12) return null;
+  return { year, month };
+}
+
+function getMonthRangeUtc(year, month) {
+  const start = new Date(Date.UTC(year, month - 1, 1));
+  const end = new Date(Date.UTC(year, month, 0));
+  const daysInMonth = end.getUTCDate();
+  return {
+    startKey: utcDateKey(start),
+    endKey: utcDateKey(end),
+    daysInMonth,
+    monthKey: `${year}-${String(month).padStart(2, "0")}`,
+  };
+}
+
 async function touchJournalLastUpdatedAt(userId) {
   await RegisterUser.updateOne(
     { _id: userId },
@@ -511,5 +533,50 @@ export const getDailyQuestionStats = async (req, res) => {
     daysAnswered,
     daysWithLearning,
     daysWithMistakes,
+  });
+};
+
+/**
+ * GET /api/journal/stats/monthly-days?month=YYYY-MM
+ * Returns number of days with at least one task and total days in the month.
+ */
+export const getMonthlyTaskDaysFilled = async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+  const rawMonth = req.validatedQuery?.month ?? req.query?.month ?? null;
+  const now = new Date();
+
+  const parsed = rawMonth
+    ? parseMonthKey(rawMonth)
+    : { year: now.getUTCFullYear(), month: now.getUTCMonth() + 1 };
+
+  if (!parsed) {
+    return res.status(400).json({ error: "Invalid month" });
+  }
+
+  const { startKey, endKey, daysInMonth, monthKey } = getMonthRangeUtc(
+    parsed.year,
+    parsed.month,
+  );
+
+  const entries = await JournalEntry.find({
+    user: userId,
+    dateKey: { $gte: startKey, $lte: endKey },
+  })
+    .select("dateKey tasks")
+    .lean();
+
+  let daysFilled = 0;
+  (entries ?? []).forEach((entry) => {
+    if (Array.isArray(entry.tasks) && entry.tasks.length > 0) {
+      daysFilled += 1;
+    }
+  });
+
+  return res.json({
+    month: monthKey,
+    daysFilled,
+    totalDaysInMonth: daysInMonth,
   });
 };

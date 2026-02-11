@@ -617,6 +617,31 @@
               "path": ["api", "journal", "stats", "daily-questions"]
             }
           }
+        },
+        {
+          "name": "GET /api/journal/stats/monthly-days (auth)",
+          "description": "If month is omitted, the API returns data for the current month. A day is considered filled if the user added tasks or filled that day entry.",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/journal/stats/monthly-days?month={{month}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "journal", "stats", "monthly-days"],
+              "query": [{ "key": "month", "value": "{{month}}" }]
+            }
+          }
+        },
+        {
+          "name": "GET /api/journal/stats/monthly-days (auth, current month)",
+          "description": "Month query is optional; omitting it returns the current month.",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/journal/stats/monthly-days",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "journal", "stats", "monthly-days"]
+            }
+          }
         }
       ]
     },
