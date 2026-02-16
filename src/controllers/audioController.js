@@ -30,6 +30,34 @@ const r2 = new S3Client({
 const BUCKET_NAME = process.env.R2_BUCKET_NAME || config.R2_BUCKET_NAME;
 const PUBLIC_R2_URL = process.env.R2_PUBLIC_URL || config.R2_PUBLIC_URL;
 
+const CATEGORY_INDEX_MAP = {
+  "calms mind": [0, 2, 4],
+  "reduce stress": [1, 3, 5],
+  "concentrate": [0, 1],
+  "sleep": [2, 4, 6],
+};
+
+const CATEGORY_DISPLAY_NAME = {
+  "calms mind": "Calms Mind",
+  "reduce stress": "Reduce Stress",
+  "concentrate": "Concentrate",
+  "sleep": "Sleep",
+};
+
+const parseCategoryList = (value) => {
+  if (!value) return [];
+  if (Array.isArray(value)) {
+    return value
+      .flatMap((entry) => String(entry).split(","))
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+  }
+  return String(value)
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+};
+
 // Helper function to upload file to R2
 const uploadToR2 = async (fileBuffer, fileName, mimeType, folder = "audio") => {
   const key = `${folder}/${Date.now()}-${fileName}`;
@@ -68,7 +96,47 @@ export const getAllAudios = async (req, res) => {
   try {
     const audios = await Audio.find().sort({ createdAt: -1 });
     console.log(`Retrieved ${audios.length} audio files from database`);
-    res.json(audios);
+
+    const categories = parseCategoryList(
+      req.query.categories || req.query.category || req.query.goals
+    );
+
+    if (categories.length === 0) {
+      return res.json(audios);
+    }
+
+    const groupedAudios = [];
+    const flatAudios = [];
+    const unknownCategories = [];
+
+    categories.forEach((category) => {
+      const key = category.toLowerCase();
+      const indices = CATEGORY_INDEX_MAP[key];
+      if (!indices) {
+        unknownCategories.push(category);
+        return;
+      }
+
+      const selected = indices
+        .map((index) => audios[index])
+        .filter(Boolean);
+
+      groupedAudios.push({
+        category: CATEGORY_DISPLAY_NAME[key] || category,
+        indices,
+        audios: selected,
+      });
+
+      flatAudios.push(...selected);
+    });
+
+    return res.json({
+      success: true,
+      totalAvailable: audios.length,
+      categories: groupedAudios,
+      audios: flatAudios,
+      unknownCategories: unknownCategories.length ? unknownCategories : undefined,
+    });
   } catch (error) {
     console.error("Error fetching audios:", error);
     res.status(500).json({

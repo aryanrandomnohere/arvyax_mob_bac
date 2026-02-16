@@ -1030,9 +1030,15 @@
             "auth": { "type": "noauth" },
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/get-audios",
+              "raw": "{{baseUrl}}/api/get-audios?categories=Calms%20Mind,Reduce%20Stress,Concentrate",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "get-audios"]
+              "path": ["api", "get-audios"],
+              "query": [
+                {
+                  "key": "categories",
+                  "value": "Calms Mind,Reduce Stress,Concentrate"
+                }
+              ]
             }
           }
         },
