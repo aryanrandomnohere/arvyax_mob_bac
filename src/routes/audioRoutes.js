@@ -33,7 +33,8 @@ const upload = multer({
 /**
  * GET /api/audios/get-audios
  * Get all mindfulness/meditation audio files
- * Returns: Array of all audio files with thumbnails
+ * Query params: page? (default: 1, 6 audios per page)
+ * Returns: Array of paginated audio files with thumbnails
  * Usage: Load meditation library, breath work exercises
  */
 router.get("/get-audios", audioController.getAllAudios); ///tested
@@ -52,7 +53,7 @@ router.post(
     { name: "audioFile", maxCount: 1 },
     { name: "thumbnail", maxCount: 1 },
   ]),
-  audioController.uploadAudio
+  audioController.uploadAudio,
 ); ///tested
 
 /**

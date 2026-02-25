@@ -642,6 +642,30 @@
               "path": ["api", "journal", "stats", "monthly-days"]
             }
           }
+        },
+        {
+          "name": "GET /api/journal/random-video/morning (auth)",
+          "description": "Returns a random HLS video from the current day's morning videos. Path structure: Journal/{Day}/{TimeOfDay}/Week_{randomWeek}/master.m3u8",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/journal/random-video/morning",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "journal", "random-video", "morning"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/journal/random-video/evening (auth)",
+          "description": "Returns a random HLS video from the current day's evening videos. Path structure: Journal/{Day}/{TimeOfDay}/Week_{randomWeek}/master.m3u8",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/journal/random-video/evening",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "journal", "random-video", "evening"]
+            }
+          }
         }
       ]
     },
@@ -1030,13 +1054,13 @@
             "auth": { "type": "noauth" },
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/get-audios?categories=Calms%20Mind,Reduce%20Stress,Concentrate",
+              "raw": "{{baseUrl}}/api/get-audios?page=1",
               "host": ["{{baseUrl}}"],
               "path": ["api", "get-audios"],
               "query": [
                 {
-                  "key": "categories",
-                  "value": "Calms Mind,Reduce Stress,Concentrate"
+                  "key": "page",
+                  "value": "1"
                 }
               ]
             }

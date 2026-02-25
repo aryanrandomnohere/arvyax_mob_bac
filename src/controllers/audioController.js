@@ -30,34 +30,6 @@ const r2 = new S3Client({
 const BUCKET_NAME = process.env.R2_BUCKET_NAME || config.R2_BUCKET_NAME;
 const PUBLIC_R2_URL = process.env.R2_PUBLIC_URL || config.R2_PUBLIC_URL;
 
-const CATEGORY_INDEX_MAP = {
-  "calms mind": [0, 2, 4],
-  "reduce stress": [1, 3, 5],
-  "concentrate": [0, 1],
-  "sleep": [2, 4, 6],
-};
-
-const CATEGORY_DISPLAY_NAME = {
-  "calms mind": "Calms Mind",
-  "reduce stress": "Reduce Stress",
-  "concentrate": "Concentrate",
-  "sleep": "Sleep",
-};
-
-const parseCategoryList = (value) => {
-  if (!value) return [];
-  if (Array.isArray(value)) {
-    return value
-      .flatMap((entry) => String(entry).split(","))
-      .map((entry) => entry.trim())
-      .filter(Boolean);
-  }
-  return String(value)
-    .split(",")
-    .map((entry) => entry.trim())
-    .filter(Boolean);
-};
-
 // Helper function to upload file to R2
 const uploadToR2 = async (fileBuffer, fileName, mimeType, folder = "audio") => {
   const key = `${folder}/${Date.now()}-${fileName}`;
@@ -94,49 +66,21 @@ const deleteFromR2 = async (key) => {
  */
 export const getAllAudios = async (req, res) => {
   try {
-    const audios = await Audio.find().sort({ createdAt: -1 });
-    console.log(`Retrieved ${audios.length} audio files from database`);
+    const parsedPage = parseInt(req.query.page, 10);
+    const page = Number.isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage;
+    const limit = 6;
+    const skip = (page - 1) * limit;
 
-    const categories = parseCategoryList(
-      req.query.categories || req.query.category || req.query.goals
+    const audios = await Audio.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    console.log(
+      `Retrieved ${audios.length} audio files from database (page ${page}, limit ${limit})`,
     );
 
-    if (categories.length === 0) {
-      return res.json(audios);
-    }
-
-    const groupedAudios = [];
-    const flatAudios = [];
-    const unknownCategories = [];
-
-    categories.forEach((category) => {
-      const key = category.toLowerCase();
-      const indices = CATEGORY_INDEX_MAP[key];
-      if (!indices) {
-        unknownCategories.push(category);
-        return;
-      }
-
-      const selected = indices
-        .map((index) => audios[index])
-        .filter(Boolean);
-
-      groupedAudios.push({
-        category: CATEGORY_DISPLAY_NAME[key] || category,
-        indices,
-        audios: selected,
-      });
-
-      flatAudios.push(...selected);
-    });
-
-    return res.json({
-      success: true,
-      totalAvailable: audios.length,
-      categories: groupedAudios,
-      audios: flatAudios,
-      unknownCategories: unknownCategories.length ? unknownCategories : undefined,
-    });
+    return res.json(audios);
   } catch (error) {
     console.error("Error fetching audios:", error);
     res.status(500).json({
@@ -177,7 +121,7 @@ export const uploadAudio = async (req, res) => {
       audioFile.buffer,
       `${uuidv4()}-${audioFile.originalname}`,
       audioFile.mimetype,
-      "audio"
+      "audio",
     );
 
     let thumbnailUpload;
@@ -187,7 +131,7 @@ export const uploadAudio = async (req, res) => {
         thumbnailFile.buffer,
         `${uuidv4()}-${thumbnailFile.originalname}`,
         thumbnailFile.mimetype,
-        "thumbnails"
+        "thumbnails",
       );
     } else {
       console.log("No thumbnail provided, using default...");
@@ -381,7 +325,7 @@ export const updateAudio = async (req, res) => {
     const audio = await Audio.findByIdAndUpdate(
       req.params.id,
       { title },
-      { new: true }
+      { new: true },
     );
 
     if (!audio) {

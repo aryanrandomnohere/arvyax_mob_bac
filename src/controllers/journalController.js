@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import RegisterUser from "../models/UserModel.js";
 import JournalEntry from "../models/JournalEntry.js";
 import { uploadUserImageToR2 } from "../utils/r2Upload.js";
+import { R2_PUBLIC_URL } from "../config/constants.js";
 
 function utcDateKey(date) {
   const year = date.getUTCFullYear();
@@ -579,4 +580,83 @@ export const getMonthlyTaskDaysFilled = async (req, res) => {
     daysFilled,
     totalDaysInMonth: daysInMonth,
   });
+};
+
+/**
+ * GET /api/journal/random-video/:timeOfDay
+ * Returns a randomly selected HLS video from Cloudflare R2
+ * Path structure: Journal/{Day}/{timeOfDay}/Week_{weekNumber}/master.m3u8
+ * Example: Journal/Monday/Morning/Week_1/master.m3u8
+ *
+ * @param timeOfDay - "morning" or "evening"
+ * @returns Random video for the current day and specified time
+ */
+export const getRandomWeeklyJournalVideo = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const { timeOfDay } = req.params;
+
+    // Validate timeOfDay parameter
+    if (
+      !timeOfDay ||
+      !["morning", "evening"].includes(timeOfDay.toLowerCase())
+    ) {
+      return res.status(400).json({
+        error: "Invalid timeOfDay",
+        message: "timeOfDay must be either 'morning' or 'evening'",
+      });
+    }
+
+    // Get the current day of the week
+    const daysOfWeek = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+    const currentDay = daysOfWeek[new Date().getDay()];
+
+    // Configuration: Set the maximum number of weeks available per day
+    // Adjust this based on how many weeks of content you have stored for each day
+    const MAX_WEEKS_PER_DAY = parseInt(
+      process.env.JOURNAL_VIDEO_MAX_WEEKS || "10",
+      10,
+    );
+    const JOURNAL_VIDEO_PATH = process.env.JOURNAL_VIDEO_PATH || "Journal"; // Base path in R2 bucket
+
+    // Generate random week number between 1 and MAX_WEEKS_PER_DAY
+    const randomWeek = Math.floor(Math.random() * MAX_WEEKS_PER_DAY) + 1;
+
+    // Capitalize timeOfDay for path structure
+    const formattedTimeOfDay =
+      timeOfDay.charAt(0).toUpperCase() + timeOfDay.slice(1);
+
+    // Construct the HLS master playlist URL
+    // Path format: Journal/{Day}/{TimeOfDay}/Week_{weekNumber}/master.m3u8
+    const r2Key = `${JOURNAL_VIDEO_PATH}/${currentDay}/${formattedTimeOfDay}/Week_${randomWeek}/master.m3u8`;
+    const videoUrl = `${R2_PUBLIC_URL}/${r2Key}`;
+
+    return res.json({
+      success: true,
+      dayOfWeek: currentDay,
+      timeOfDay: formattedTimeOfDay,
+      week: randomWeek,
+      videoUrl,
+      r2Path: r2Key,
+      message: `Random journal video for ${currentDay} ${formattedTimeOfDay}`,
+    });
+  } catch (error) {
+    console.error("Error getting random weekly journal video:", error);
+    return res.status(500).json({
+      error: "Failed to retrieve random video",
+      message: error.message,
+    });
+  }
 };

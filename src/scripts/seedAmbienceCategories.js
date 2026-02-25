@@ -16,37 +16,30 @@ const seedAmbienceCategories = async () => {
           {
             name: "Forest",
             imageUrl:
-              "https://via.placeholder.com/500x700/2d5016/ffffff?text=Forest+Theme",
+              "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/ambience-backgrounds/Nature/nature%201.png",
             isActive: true,
             order: 1,
           },
           {
             name: "River",
             imageUrl:
-              "https://via.placeholder.com/500x700/1e3a5f/ffffff?text=River+Theme",
+              "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/ambience-backgrounds/Nature/nature%204.png",
             isActive: true,
             order: 2,
           },
           {
             name: "Mountain",
             imageUrl:
-              "https://via.placeholder.com/500x700/4a3b2a/ffffff?text=Mountain+Theme",
+              "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/ambience-backgrounds/Nature/nature%202.png",
             isActive: true,
             order: 3,
           },
           {
-            name: "Ocean Waves",
-            imageUrl:
-              "https://via.placeholder.com/500x700/0d47a1/ffffff?text=Ocean+Waves",
-            isActive: true,
-            order: 4,
-          },
-          {
             name: "Rainforest",
             imageUrl:
-              "https://via.placeholder.com/500x700/1b5e20/ffffff?text=Rainforest",
+              "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/ambience-backgrounds/Nature/nature%203.png",
             isActive: true,
-            order: 5,
+            order: 4,
           },
         ],
         isActive: true,
@@ -59,193 +52,113 @@ const seedAmbienceCategories = async () => {
           {
             name: "Coffee Shop",
             imageUrl:
-              "https://via.placeholder.com/500x700/6f4e37/ffffff?text=Coffee+Shop",
+              "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/ambience-backgrounds/Urban/Urban%201.png",
             isActive: true,
             order: 1,
           },
           {
             name: "Library",
             imageUrl:
-              "https://via.placeholder.com/500x700/5c4033/ffffff?text=Library",
+              "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/ambience-backgrounds/Urban/Urban%202.png",
             isActive: true,
             order: 2,
           },
           {
             name: "City Rain",
             imageUrl:
-              "https://via.placeholder.com/500x700/455a64/ffffff?text=City+Rain",
+              "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/ambience-backgrounds/Urban/Urban%203.png",
             isActive: true,
             order: 3,
-          },
-          {
-            name: "Bustling Street",
-            imageUrl:
-              "https://via.placeholder.com/500x700/37474f/ffffff?text=Bustling+Street",
-            isActive: true,
-            order: 4,
           },
         ],
         isActive: true,
         order: 2,
       },
       {
-        name: "Cozy",
-        description: "Warm and comfortable ambient environments",
+        name: "Cafe",
+        description: "Cafe ambience themes",
         themes: [
           {
-            name: "Fireplace",
+            name: "Sunlit Minimal",
             imageUrl:
-              "https://via.placeholder.com/500x700/bf360c/ffffff?text=Fireplace",
+              "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/ambience-backgrounds/Cafe/Cafe%201.png",
             isActive: true,
             order: 1,
           },
           {
-            name: "Candlelit Room",
+            name: "Rainy Cozy",
             imageUrl:
-              "https://via.placeholder.com/500x700/f57f17/ffffff?text=Candlelit+Room",
+              "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/ambience-backgrounds/Cafe/Cafe%202.png",
             isActive: true,
             order: 2,
           },
           {
-            name: "Rainy Night",
+            name: "Urban Industrial",
             imageUrl:
-              "https://via.placeholder.com/500x700/263238/ffffff?text=Rainy+Night",
+              "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/ambience-backgrounds/Cafe/Cafe%203.png",
             isActive: true,
             order: 3,
           },
           {
-            name: "Warm Cabin",
+            name: "Night Warmth",
             imageUrl:
-              "https://via.placeholder.com/500x700/827717/ffffff?text=Warm+Cabin",
+              "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/ambience-backgrounds/Cafe/Cafe%204.png",
             isActive: true,
             order: 4,
+          },
+          {
+            name: "Green Haven 🌿",
+            imageUrl:
+              "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/ambience-backgrounds/Cafe/Cafe%205.png",
+            isActive: true,
+            order: 5,
           },
         ],
         isActive: true,
         order: 3,
       },
       {
-        name: "Meditation",
-        description: "Peaceful and spiritual themes for deep meditation",
+        name: "City",
+        description: "City ambience themes",
         themes: [
           {
-            name: "Zen Garden",
+            name: "Misty Avenue",
             imageUrl:
-              "https://via.placeholder.com/500x700/1b5e20/ffffff?text=Zen+Garden",
+              "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/ambience-backgrounds/City/City%201.png",
             isActive: true,
             order: 1,
           },
           {
-            name: "Tibetan Bowls",
+            name: "Golden Grid",
             imageUrl:
-              "https://via.placeholder.com/500x700/d4af37/ffffff?text=Tibetan+Bowls",
+              "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/ambience-backgrounds/City/City%202.png",
             isActive: true,
             order: 2,
           },
           {
-            name: "Mantra Om",
+            name: "Rain Rush",
             imageUrl:
-              "https://via.placeholder.com/500x700/9c27b0/ffffff?text=Mantra+Om",
+              "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/ambience-backgrounds/City/City%203.png",
             isActive: true,
             order: 3,
           },
           {
-            name: "Chakra Healing",
+            name: "Skyline Glow",
             imageUrl:
-              "https://via.placeholder.com/500x700/6a1b9a/ffffff?text=Chakra+Healing",
+              "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/ambience-backgrounds/City/City%204.png",
             isActive: true,
             order: 4,
           },
           {
-            name: "Crystal Bowls",
+            name: "Empire Dusk",
             imageUrl:
-              "https://via.placeholder.com/500x700/1a237e/ffffff?text=Crystal+Bowls",
+              "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/ambience-backgrounds/City/City%205.png",
             isActive: true,
             order: 5,
           },
         ],
         isActive: true,
         order: 4,
-      },
-      {
-        name: "Sleep",
-        description:
-          "Soothing soundscapes to help you drift into peaceful sleep",
-        themes: [
-          {
-            name: "Gentle Rain",
-            imageUrl:
-              "https://via.placeholder.com/500x700/4fc3f7/ffffff?text=Gentle+Rain",
-            isActive: true,
-            order: 1,
-          },
-          {
-            name: "Distant Thunder",
-            imageUrl:
-              "https://via.placeholder.com/500x700/5c6bc0/ffffff?text=Distant+Thunder",
-            isActive: true,
-            order: 2,
-          },
-          {
-            name: "Lullabies",
-            imageUrl:
-              "https://via.placeholder.com/500x700/ba68c8/ffffff?text=Lullabies",
-            isActive: true,
-            order: 3,
-          },
-          {
-            name: "White Noise",
-            imageUrl:
-              "https://via.placeholder.com/500x700/bdbdbd/ffffff?text=White+Noise",
-            isActive: true,
-            order: 4,
-          },
-          {
-            name: "Heartbeat",
-            imageUrl:
-              "https://via.placeholder.com/500x700/ef5350/ffffff?text=Heartbeat",
-            isActive: true,
-            order: 5,
-          },
-        ],
-        isActive: true,
-        order: 5,
-      },
-      {
-        name: "Focus",
-        description: "Ambient sounds to enhance concentration and productivity",
-        themes: [
-          {
-            name: "Lo-fi Beats",
-            imageUrl:
-              "https://via.placeholder.com/500x700/ff6f00/ffffff?text=Lo-fi+Beats",
-            isActive: true,
-            order: 1,
-          },
-          {
-            name: "Classical Piano",
-            imageUrl:
-              "https://via.placeholder.com/500x700/1565c0/ffffff?text=Classical+Piano",
-            isActive: true,
-            order: 2,
-          },
-          {
-            name: "Ambient Synth",
-            imageUrl:
-              "https://via.placeholder.com/500x700/283593/ffffff?text=Ambient+Synth",
-            isActive: true,
-            order: 3,
-          },
-          {
-            name: "Nature Focus",
-            imageUrl:
-              "https://via.placeholder.com/500x700/00838f/ffffff?text=Nature+Focus",
-            isActive: true,
-            order: 4,
-          },
-        ],
-        isActive: true,
-        order: 6,
       },
     ];
 
@@ -260,7 +173,7 @@ const seedAmbienceCategories = async () => {
     // Count total themes
     const totalThemes = fakeCategories.reduce(
       (sum, cat) => sum + (cat.themes?.length || 0),
-      0
+      0,
     );
     console.log(`📊 Total themes: ${totalThemes}`);
 

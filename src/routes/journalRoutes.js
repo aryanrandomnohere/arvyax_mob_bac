@@ -19,6 +19,7 @@ import {
   getJournalLearnings,
   getDailyQuestionStats,
   getMonthlyTaskDaysFilled,
+  getRandomWeeklyJournalVideo,
 } from "../controllers/journalController.js";
 
 import {
@@ -187,6 +188,14 @@ router.get(
   authMiddleware,
   validateQuery(journalMonthQuerySchema),
   tryCatch(getMonthlyTaskDaysFilled),
+);
+
+// Get random weekly journal video from Cloudflare R2
+// Route: GET /api/journal/random-video/morning or /api/journal/random-video/evening
+router.get(
+  "/journal/random-video/:timeOfDay",
+  authMiddleware,
+  tryCatch(getRandomWeeklyJournalVideo),
 );
 
 export default router;

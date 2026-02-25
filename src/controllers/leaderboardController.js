@@ -8,7 +8,7 @@ function utcDateKey(date) {
   return `${year}-${month}-${day}`;
 }
 
-function computeStreakFromDaySet(daySet, todayUtcMidnight) {
+function computeCurrentStreakFromDaySet(daySet, todayUtcMidnight) {
   let streak = 0;
   for (let i = 0; i < 400; i++) {
     const d = new Date(todayUtcMidnight);
@@ -20,9 +20,32 @@ function computeStreakFromDaySet(daySet, todayUtcMidnight) {
   return streak;
 }
 
+function computeMaxStreakFromDaySet(daySet) {
+  if (!daySet || daySet.size === 0) return 0;
+
+  const sortedKeys = Array.from(daySet).sort();
+  let maxStreak = 1;
+  let currentStreak = 1;
+
+  for (let i = 1; i < sortedKeys.length; i++) {
+    const prev = new Date(`${sortedKeys[i - 1]}T00:00:00Z`);
+    const curr = new Date(`${sortedKeys[i]}T00:00:00Z`);
+    const diffDays = Math.round((curr - prev) / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 1) {
+      currentStreak += 1;
+      if (currentStreak > maxStreak) maxStreak = currentStreak;
+    } else {
+      currentStreak = 1;
+    }
+  }
+
+  return maxStreak;
+}
+
 /**
  * GET /api/leaderboard/streak
- * Returns a sorted leaderboard by current streak (desc).
+ * Returns a sorted leaderboard by max streak (desc).
  */
 export const getStreakLeaderboard = async (req, res) => {
   const rawLimit = req.query?.limit;
@@ -37,7 +60,7 @@ export const getStreakLeaderboard = async (req, res) => {
 
   const today = new Date();
   const todayUtcMidnight = new Date(
-    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()),
   );
 
   const windowStart = new Date(todayUtcMidnight);
@@ -61,22 +84,30 @@ export const getStreakLeaderboard = async (req, res) => {
   const entries = users.map((u) => {
     const userId = String(u._id);
     const daySet = userIdToDaySet.get(userId) ?? new Set();
-    const streak = computeStreakFromDaySet(daySet, todayUtcMidnight);
+    const currentStreak = computeCurrentStreakFromDaySet(
+      daySet,
+      todayUtcMidnight,
+    );
+    const maxStreak = computeMaxStreakFromDaySet(daySet);
 
     return {
       userId,
       name: String(u.preferences?.nickname ?? u.username ?? ""),
       photoUrl: u.photoUrl ?? null,
-      streak,
+      currentStreak,
+      maxStreak,
+      streak: maxStreak,
     };
   });
 
-  entries.sort((a, b) => {
-    if (b.streak !== a.streak) return b.streak - a.streak;
+  const nonZeroEntries = entries.filter((entry) => entry.maxStreak > 0);
+
+  nonZeroEntries.sort((a, b) => {
+    if (b.maxStreak !== a.maxStreak) return b.maxStreak - a.maxStreak;
     return a.name.localeCompare(b.name);
   });
 
-  const sliced = entries.slice(0, limit);
+  const sliced = nonZeroEntries.slice(0, limit);
 
   const leaderboard = sliced.map((e, index) => ({
     rank: index + 1,

@@ -14,13 +14,13 @@ const router = express.Router();
 
 /**
  * GET /api/leaderboard/streak
- * Returns users sorted by current streak (desc).
+ * Returns users sorted by max streak (desc).
  * Optional query: ?limit=100 (1..200)
  */
 router.get(
   "/leaderboard/streak",
   authMiddleware,
-  tryCatch(getStreakLeaderboard)
+  tryCatch(getStreakLeaderboard),
 );
 
 export default router;
