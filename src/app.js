@@ -23,6 +23,7 @@ import cloudflareVideoStorageRoutes from "./routes/cloudflareVideoStorageRoutes.
 import hlsVideoStorageRoutes from "./routes/hlsVideoStorageRoutes.js";
 import leaderboardRoutes from "./routes/leaderboardRoutes.js";
 import journalRoutes from "./routes/journalRoutes.js";
+import breathingRoutes from "./routes/breathingRoutes.js";
 
 // Needed for __dirname in ES modules
 import { fileURLToPath } from "url";
@@ -94,6 +95,7 @@ app.use("/api", cloudflareVideoStorageRoutes); // Video routes for Cloudflare R2
 app.use("/api", hlsVideoStorageRoutes); // HLS video routes with FFmpeg processing
 app.use("/api", leaderboardRoutes);
 app.use("/api", journalRoutes);
+app.use("/api/breathing", breathingRoutes); // Breathing exercises routes for mindfulness
 
 app.get("/health", (req, res) => {
   res.json({
