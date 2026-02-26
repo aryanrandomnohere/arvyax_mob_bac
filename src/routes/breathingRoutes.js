@@ -18,7 +18,7 @@ router.get("/all", breathingController.getAllBreathing);
 
 /**
  * GET /api/breathing/:type
- * Get breathing exercise by type (triangleBreathing, lineBreathing, boxBreathing, infinityBreathing, shuffleBreathing)
+ * Get breathing exercise by type initials (triangle, line, square, infinity, shuffle)
  * Returns: Breathing type with all videos
  */
 router.get("/:type", breathingController.getBreathingByType);

@@ -57,7 +57,7 @@ app.use(
     secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-  })
+  }),
 );
 
 app.use(passport.initialize());
@@ -95,7 +95,7 @@ app.use("/api", cloudflareVideoStorageRoutes); // Video routes for Cloudflare R2
 app.use("/api", hlsVideoStorageRoutes); // HLS video routes with FFmpeg processing
 app.use("/api", leaderboardRoutes);
 app.use("/api", journalRoutes);
-app.use("/api/breathing", breathingRoutes); // Breathing exercises routes for mindfulness
+app.use("/api/box-breathing", breathingRoutes); // Breathing exercises routes for mindfulness
 
 app.get("/health", (req, res) => {
   res.json({

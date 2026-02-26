@@ -2440,31 +2440,31 @@
       ]
     },
     {
-      "name": "Breathing Exercises (/api/breathing)",
+      "name": "Breathing Exercises (/api/box-breathing)",
       "item": [
         {
-          "name": "GET /api/breathing/all",
+          "name": "GET /api/box-breathing/all",
           "description": "Get all breathing exercises with their video URLs",
           "request": {
             "auth": { "type": "noauth" },
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/breathing/all",
+              "raw": "{{baseUrl}}/api/box-breathing/all",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "breathing", "all"]
+              "path": ["api", "box-breathing", "all"]
             }
           }
         },
         {
-          "name": "GET /api/breathing/:type",
-          "description": "Get breathing exercise by type (triangleBreathing, lineBreathing, boxBreathing, infinityBreathing, shuffleBreathing)",
+          "name": "GET /api/box-breathing/:type",
+          "description": "Get breathing exercise by type initials (triangle, line, square, infinity, shuffle)",
           "request": {
             "auth": { "type": "noauth" },
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/breathing/triangleBreathing",
+              "raw": "{{baseUrl}}/api/box-breathing/triangle",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "breathing", "triangleBreathing"]
+              "path": ["api", "box-breathing", "triangle"]
             }
           }
         }

@@ -33,8 +33,8 @@ const seedBreathing = async () => {
         order: 2,
       },
       {
-        type: "boxBreathing",
-        name: "Box Breathing",
+        type: "squareBreathing",
+        name: "Square Breathing",
         description: "4-4-4-4 pattern breathing for deep relaxation",
         videos: [
           "https://pub-9056ebf0d12e4e538cb2af4f4d495706.r2.dev/videos/5b85f10e-50a2-44af-8ad3-feb0d5c44d33.mp4",
