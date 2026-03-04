@@ -47,11 +47,11 @@ export const getBreathingByType = async (req, res) => {
 
     // Map abbreviated type to full breathing type name
     const typeMap = {
-      triangle: "triangleBreathing",
-      line: "lineBreathing",
-      square: "squareBreathing",
-      infinity: "infinityBreathing",
-      shuffle: "shuffleBreathing",
+      triangle: "triangle",
+      line: "line",
+      square: "square",
+      infinity: "infinity",
+      shuffle: "shuffle",
     };
 
     const fullType = typeMap[type.toLowerCase()];
