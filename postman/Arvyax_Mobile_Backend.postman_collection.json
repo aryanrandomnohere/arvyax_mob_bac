@@ -2440,31 +2440,57 @@
       ]
     },
     {
-      "name": "Breathing Exercises (/api/box-breathing)",
+      "name": "Breathing Exercises (/api/breathing)",
       "item": [
         {
-          "name": "GET /api/box-breathing/all",
+          "name": "GET /api/breathing/box/all",
           "description": "Get all breathing exercises with their video URLs",
           "request": {
             "auth": { "type": "noauth" },
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/box-breathing/all",
+              "raw": "{{baseUrl}}/api/breathing/box/all",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "box-breathing", "all"]
+              "path": ["api", "breathing", "box", "all"]
             }
           }
         },
         {
-          "name": "GET /api/box-breathing/:type",
+          "name": "GET /api/breathing/exercises/short",
+          "description": "Get all short breathing exercises (Alternate Nostril, Breathe In Nature, Deep Chest Breathing)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/breathing/exercises/short",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "breathing", "exercises", "short"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/breathing/exercises/long",
+          "description": "Get all long breathing exercises (Morning Breath)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/breathing/exercises/long",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "breathing", "exercises", "long"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/breathing/box/:type",
           "description": "Get breathing exercise by type initials (triangle, line, square, infinity, shuffle)",
           "request": {
             "auth": { "type": "noauth" },
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/box-breathing/triangle",
+              "raw": "{{baseUrl}}/api/breathing/box/triangle",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "box-breathing", "triangle"]
+              "path": ["api", "breathing", "box", "triangle"]
             }
           }
         }

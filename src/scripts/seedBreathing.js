@@ -9,7 +9,7 @@ const seedBreathing = async () => {
 
     const breathingExercises = [
       {
-        type: "triangleBreathing",
+        type: "triangle",
         name: "Triangle Breathing",
         description: "Equal length inhale, hold, exhale pattern for calm focus",
         videos: [
@@ -21,7 +21,7 @@ const seedBreathing = async () => {
         order: 1,
       },
       {
-        type: "lineBreathing",
+        type: "line",
         name: "Line Breathing",
         description: "Rhythmic breathing pattern for steady relaxation",
         videos: [
@@ -33,7 +33,7 @@ const seedBreathing = async () => {
         order: 2,
       },
       {
-        type: "squareBreathing",
+        type: "square",
         name: "Square Breathing",
         description: "4-4-4-4 pattern breathing for deep relaxation",
         videos: [
@@ -45,7 +45,7 @@ const seedBreathing = async () => {
         order: 3,
       },
       {
-        type: "infinityBreathing",
+        type: "infinity",
         name: "Infinity Breathing",
         description: "Continuous flowing breath pattern for meditation",
         videos: [],
@@ -53,7 +53,7 @@ const seedBreathing = async () => {
         order: 4,
       },
       {
-        type: "shuffleBreathing",
+        type: "shuffle",
         name: "Shuffle Breathing",
         description: "Varied breathing patterns for dynamic practice",
         videos: [

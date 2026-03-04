@@ -10,9 +10,13 @@ const BreathingSchema = new Schema(
       enum: [
         "triangleBreathing",
         "lineBreathing",
-        "boxBreathing",
+        "squareBreathing",
         "infinityBreathing",
         "shuffleBreathing",
+        "alternateNostril",
+        "breatheInNature",
+        "deepChestBreathing",
+        "morningBreath",
       ],
       index: true,
       unique: true,
@@ -53,6 +57,12 @@ const BreathingSchema = new Schema(
       type: String,
       default: "mindfulness",
       trim: true,
+    },
+
+    duration: {
+      type: String,
+      enum: ["short", "long"],
+      default: "short",
     },
   },
   {
