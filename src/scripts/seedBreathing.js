@@ -73,9 +73,11 @@ const seedBreathing = async () => {
       },
     ];
 
-    // Clear existing breathing exercises (optional - remove if you want to keep existing)
-    await Breathing.deleteMany({});
-    console.log("🗑️  Cleared existing breathing exercises");
+    // Clear only box breathing exercises to avoid removing mindfulness exercise data
+    await Breathing.deleteMany({
+      type: { $in: ["triangle", "line", "square", "infinity", "shuffle"] },
+    });
+    console.log("🗑️  Cleared existing box breathing exercises");
 
     // Insert new breathing exercises
     await Breathing.insertMany(breathingExercises);

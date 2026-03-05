@@ -1,5 +1,13 @@
 import Breathing from "../models/Breathing.js";
 
+const SHORT_EXERCISE_TYPES = [
+  "alternateNostril",
+  "breatheInNature",
+  "deepChestBreathing",
+];
+
+const LONG_EXERCISE_TYPES = ["morningBreath"];
+
 /**
  * Breathing Controller
  * Handles mindfulness breathing exercises
@@ -103,6 +111,7 @@ export const getBreathingByType = async (req, res) => {
 export const getShortBreathingExercises = async (req, res) => {
   try {
     const shortExercises = await Breathing.find({
+      type: { $in: SHORT_EXERCISE_TYPES },
       duration: "short",
       isActive: true,
     }).sort({ order: 1 });
@@ -136,6 +145,7 @@ export const getShortBreathingExercises = async (req, res) => {
 export const getLongBreathingExercises = async (req, res) => {
   try {
     const longExercises = await Breathing.find({
+      type: { $in: LONG_EXERCISE_TYPES },
       duration: "long",
       isActive: true,
     }).sort({ order: 1 });

@@ -15,7 +15,7 @@ const BreathingSchema = new Schema(
         "shuffle",
         "alternateNostril",
         "breatheInNature",
-        "deepChest",
+        "deepChestBreathing",
         "morningBreath",
       ],
       index: true,
