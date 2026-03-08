@@ -240,7 +240,7 @@ router.post(
     try {
       const { name, gender, dob } = req.body;
 
-      if (!name || !gender || !dob) {
+      if ( !gender || !dob) {
         return res.status(400).json({ error: "Name, Gender and DOB required" });
       }
 

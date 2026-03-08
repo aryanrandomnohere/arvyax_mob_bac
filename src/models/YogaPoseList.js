@@ -32,7 +32,6 @@ const yogaPoseCardSchema = new mongoose.Schema(
     uniqueId: {
       type: String,
       required: true,
-      unique: true,
     },
     cardId: {
       type: String,
@@ -68,8 +67,5 @@ const yogaPoseSectionSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
-
-yogaPoseSectionSchema.index({ uniqueId: 1 });
-yogaPoseSectionSchema.index({ "cards.uniqueId": 1 });
 
 export default mongoose.model("YogaPoseList", yogaPoseSectionSchema);

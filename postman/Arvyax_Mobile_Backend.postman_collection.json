@@ -1003,7 +1003,12 @@
         {
           "name": "POST /api/ambience-categories/user/select-theme/:themeId - Select theme",
           "request": {
-            "auth": { "type": "bearer" },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{token}}", "type": "string" }
+              ]
+            },
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "url": {
