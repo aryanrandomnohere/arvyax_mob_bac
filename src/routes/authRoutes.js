@@ -239,9 +239,10 @@ router.post(
   tryCatch(async (req, res) => {
     try {
       const { name, gender, dob } = req.body;
+      const trimmedName = typeof name === "string" ? name.trim() : "";
 
-      if ( !gender || !dob) {
-        return res.status(400).json({ error: "Name, Gender and DOB required" });
+      if (!gender || !dob) {
+        return res.status(400).json({ error: "Gender and DOB required" });
       }
 
       const userId = req.user.id;
@@ -249,7 +250,9 @@ router.post(
 
       if (!user) return res.status(404).json({ error: "User not found" });
 
-      user.preferences.nickname = String(name).trim();
+      if (trimmedName) {
+        user.preferences.nickname = trimmedName;
+      }
       user.preferences.gender = gender;
       user.preferences.dob = new Date(dob);
       user.onboardingCompleted = true;
