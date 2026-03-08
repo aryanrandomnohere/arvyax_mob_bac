@@ -15,7 +15,11 @@ export const loginSchema = z.object({
 });
 
 export const onboardingSchema = z.object({
-  name: z.string().trim().min(1, "name is required").max(80),
+  name: z.preprocess((value) => {
+    if (typeof value !== "string") return value;
+    const trimmedValue = value.trim();
+    return trimmedValue === "" ? undefined : trimmedValue;
+  }, z.string().max(80).optional()),
   gender: z.enum(["male", "female", "other"]),
   dob: z.string().trim().min(1, "dob is required"),
 });
@@ -32,11 +36,11 @@ export const socialLoginSchema = z
     // For google: prefer idToken, but accessToken is also supported as fallback
     idToken: z.preprocess(
       (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
-      z.string().trim().optional()
+      z.string().trim().optional(),
     ),
     accessToken: z.preprocess(
       (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
-      z.string().trim().optional()
+      z.string().trim().optional(),
     ),
     // Fallback fields from client if the provider doesn't return email/name
     email: z.string().trim().email("invalid email").optional(),
