@@ -11,18 +11,21 @@ arvyax_mobile_backend/src/
 ├── models/
 │   ├── YogaSession.js          - Session JSON models
 │   ├── YogaPractice.js         - Practice library (sections/cards)
+│   ├── YogaPoseList.js         - Legacy yoga pose list sections/cards
 │   ├── Audio.js                - Mindfulness/meditation audio
 │   ├── AmbienceAudio.js        - Soundscape audio
 │   └── AmbienceCommand.js      - BLE commands for soundscapes
 ├── controllers/
 │   ├── yogaSessionController.js
 │   ├── yogaPracticeController.js
+│   ├── yogaPoseListController.js
 │   ├── audioController.js
 │   ├── ambienceAudioController.js
 │   └── ambienceCommandController.js
 └── routes/
     ├── yogaSessionRoutes.js
     ├── yogaPracticeRoutes.js
+  ├── yogaPoseListRoutes.js
     ├── audioRoutes.js
     ├── ambienceAudioRoutes.js
     └── ambienceCommandRoutes.js
@@ -203,6 +206,68 @@ arvyax_mobile_backend/src/
 
 **What it does**: Updates specific sub-image  
 **Body**: `{ url, cloudinaryId, audioUrl? }`
+
+---
+
+## 🧘 2A. Legacy Yoga Pose List APIs (`/api/yoga-pose-list`)
+
+**Purpose**: Preserves the old backend yoga pose list contract for clients that still depend on the section-based `YogaPoseList` collection instead of the newer consolidated `YogaPractice` document.
+
+### Routes
+
+#### `GET /api/yoga-pose-list`
+
+**What it does**: Fetches all yoga pose sections sorted by `order` and creation time  
+**Returns**: `{ success, data, count }`  
+**Use case**: Load the legacy yoga pose list UI without changing the client contract
+
+#### `GET /api/yoga-pose-list/:uniqueId`
+
+**What it does**: Fetches a single yoga pose section by its unique section ID  
+**Params**: `uniqueId` - Section identifier such as `S21`
+
+#### `POST /api/yoga-pose-list/section`
+
+**What it does**: Creates a new section document  
+**Body**: `{ section, uniqueId, order? }`
+
+#### `POST /api/yoga-pose-list/:sectionId/card-url`
+
+**What it does**: Adds a card to an existing section using a hosted image URL  
+**Body**: `{ title, repCount, id, uniqueId, cardId, imageUrl }`  
+**Notes**: `imageUrl` is stored in both `imagePath` and `imageUrl` for backward compatibility
+
+#### `PUT /api/yoga-pose-list/:sectionId/card-url/:cardId`
+
+**What it does**: Updates an existing card in a section  
+**Body**: `{ title?, repCount?, id?, uniqueId?, imageUrl? }`
+
+#### `DELETE /api/yoga-pose-list/:sectionId/card/:cardId`
+
+**What it does**: Removes a card from a section
+
+#### `PUT /api/yoga-pose-list/:uniqueId`
+
+**What it does**: Updates section metadata  
+**Body**: `{ section?, order? }`
+
+#### `DELETE /api/yoga-pose-list/:uniqueId`
+
+**What it does**: Deletes a section document by unique ID
+
+#### `POST /api/yoga-pose-list/reorder`
+
+**What it does**: Bulk updates section order values  
+**Body**:
+
+```json
+{
+  "sections": [
+    { "uniqueId": "S21", "order": 1 },
+    { "uniqueId": "S54", "order": 2 }
+  ]
+}
+```
 
 ---
 

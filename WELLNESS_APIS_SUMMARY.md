@@ -6,25 +6,28 @@
 
 1. **YogaSession.js** - Session JSONs (Start Session feature)
 2. **YogaPractice.js** - Practice library structure (Asana/Meditation cards)
-3. **Audio.js** - Mindfulness/meditation audio
-4. **AmbienceAudio.js** - Soundscape audio (Sound Escape)
-5. **AmbienceCommand.js** - BLE commands for soundscapes
+3. **YogaPoseList.js** - Legacy yoga pose list sections/cards
+4. **Audio.js** - Mindfulness/meditation audio
+5. **AmbienceAudio.js** - Soundscape audio (Sound Escape)
+6. **AmbienceCommand.js** - BLE commands for soundscapes
 
 ### Controllers (src/controllers/)
 
 1. **yogaSessionController.js** - Session JSON management
 2. **yogaPracticeController.js** - Practice card operations
-3. **audioController.js** - Mindfulness audio operations
-4. **ambienceAudioController.js** - Soundscape audio operations
-5. **ambienceCommandController.js** - BLE command management
+3. **yogaPoseListController.js** - Legacy yoga pose list operations
+4. **audioController.js** - Mindfulness audio operations
+5. **ambienceAudioController.js** - Soundscape audio operations
+6. **ambienceCommandController.js** - BLE command management
 
 ### Routes (src/routes/)
 
 1. **yogaSessionRoutes.js** → `/api/json/*`
 2. **yogaPracticeRoutes.js** → `/api/practices/*`
-3. **audioRoutes.js** → `/api/audios/*`
-4. **ambienceAudioRoutes.js** → `/api/ambience-audios/*`
-5. **ambienceCommandRoutes.js** → `/api/ambience-commands/*`
+3. **yogaPoseListRoutes.js** → `/api/yoga-pose-list*`
+4. **audioRoutes.js** → `/api/audios/*`
+5. **ambienceAudioRoutes.js** → `/api/ambience-audios/*`
+6. **ambienceCommandRoutes.js** → `/api/ambience-commands/*`
 
 ---
 
@@ -50,6 +53,13 @@
 - **What**: Meditation poses & guided meditation audio
 - **Storage**: Cloudinary (images) + R2 (audio)
 - **Use**: User selects meditation → plays guided audio
+
+### 3A. **Legacy Yoga Pose List**
+
+- **Routes**: `/api/yoga-pose-list*`
+- **What**: Preserved old-backend yoga pose section/card CRUD contract
+- **Storage**: MongoDB (`YogaPoseList` collection)
+- **Use**: Existing clients can keep calling the same yoga pose list endpoints after moving to the mobile backend
 
 ### 4. **Mindfulness / Box Breathing**
 
@@ -88,6 +98,20 @@ POST   /add-section                    - Create new section
 PUT    /update-card/:section/:cardId   - Update card details
 DELETE /delete-practice-image/:section/:cardId - Delete card
 POST   /upload-card-image/:section/:cardId     - Add sub-image
+```
+
+### Legacy Yoga Pose List (`/api/yoga-pose-list`)
+
+```
+GET    /api/yoga-pose-list                     - List all sections
+GET    /api/yoga-pose-list/:uniqueId           - Get one section
+POST   /api/yoga-pose-list/section             - Create section
+POST   /api/yoga-pose-list/:sectionId/card-url - Add card with image URL
+PUT    /api/yoga-pose-list/:sectionId/card-url/:cardId - Update card
+DELETE /api/yoga-pose-list/:sectionId/card/:cardId     - Delete card
+PUT    /api/yoga-pose-list/:uniqueId           - Update section
+DELETE /api/yoga-pose-list/:uniqueId           - Delete section
+POST   /api/yoga-pose-list/reorder             - Reorder sections
 ```
 
 ### Mindfulness Audio (`/api/audios/`)
@@ -132,7 +156,8 @@ GET    /ambience-commands/stats/overview - Statistics
 ✓ **Same Cloudflare R2 integration**  
 ✓ **Same Cloudinary integration**  
 ✓ **Same error handling patterns**  
-✓ **Same validation logic**
+✓ **Same validation logic**  
+✓ **Same yoga pose list path contract**
 
 ---
 
@@ -169,14 +194,14 @@ app.use("/api/ambience-commands", ambienceCommandRoutes);
 
 ```javascript
 {
-  R2_ACCESS_KEY_ID,
+  (R2_ACCESS_KEY_ID,
     R2_SECRET_ACCESS_KEY,
     R2_ENDPOINT,
     R2_BUCKET_NAME,
     R2_PUBLIC_URL,
     CLOUDINARY_CLOUD_NAME,
     CLOUDINARY_API_KEY,
-    CLOUDINARY_API_SECRET;
+    CLOUDINARY_API_SECRET);
 }
 ```
 
