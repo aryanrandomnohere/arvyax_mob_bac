@@ -55,6 +55,22 @@
       "value": "eyJraWQiOiJiRnd6bGVSOHRmIiwiYWxnIjoiUlMyNTYifQ.eyJpc3MiOiJodHRwczovL2FwcGxlaWQuYXBwbGUuY29tIiwiYXVkIjoiY29tLmFydnlheC5hcHAiLCJleHAiOjE3Njc4MTIxNzYsImlhdCI6MTc2NzcyNTc3Niwic3ViIjoiMDAwMDM3LmE0MWEyNzgwOGNlNTRmMWI5N2U4ODVlNzEzMGYzOTQ0LjE4MzUiLCJjX2hhc2giOiIweHJzcERTUF9vWVZlNXdrZUs3TjVnIiwiZW1haWwiOiJqZWp1cmthcnNocmVleWFzaEBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiYXV0aF90aW1lIjoxNzY3NzI1Nzc2LCJub25jZV9zdXBwb3J0ZWQiOnRydWV9.RWvUdDmFf3BkodI2RdSQQLb_DOEAVRmuEa6spTxrDTshNFf1O3A7MkHk7PgCQsfJWiJUEEn0pgj3ZeknQbPnvBs8MVCu8zVvCXHuqGaQBFNbIQvwPuBgiVoNE-oUJHa41ZI-SGPDqIpOzLeJQ5c_HQW06QXsZ6Fg-dTpCzVSCpB7zaSDEkQIvQ0dEU9JwQX9Pf1y4ll2Rm-QqN5F-SUUijKl3n41CXEn6hK0n6ntJN1braSziFmkhVcojl-zK3HU3xAWvORj7BWI86Ow7ZhL9G2OWo2lL2gxAMwzjrphsoE2dgz-s4cyhAIkQ6r_mcL36HP5ntz4jJ-3M0QRCK2z0w"
     },
     {
+      "key": "formId",
+      "value": "userProfile"
+    },
+    {
+      "key": "formName",
+      "value": "userProfile"
+    },
+    {
+      "key": "formUserId",
+      "value": "user123"
+    },
+    {
+      "key": "formSubmissionPayload",
+      "value": "{\n  \"id\": \"{{formUserId}}\",\n  \"metadata\": {\n    \"firstName\": \"John\",\n    \"email\": \"john@example.com\",\n    \"age\": \"25\",\n    \"country\": \"IN\",\n    \"termsAccepted\": true\n  },\n  \"formName\": \"{{formName}}\"\n}"
+    },
+    {
       "key": "test_apple_user_id",
       "value": "000037.a41a27808ce54f1b97e885e7130f3944.1835"
     }
@@ -2439,6 +2455,64 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "search-hls-videos"],
               "query": [{ "key": "query", "value": "hls" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Forms (/api/forms)",
+      "item": [
+        {
+          "name": "GET /api/forms",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/forms",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "forms"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/form (alias)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/form",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "form"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/forms/:formId",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/forms/{{formId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "forms", "{{formId}}"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/forms/:formId/submit",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{{formSubmissionPayload}}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/forms/{{formId}}/submit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "forms", "{{formId}}", "submit"]
             }
           }
         }

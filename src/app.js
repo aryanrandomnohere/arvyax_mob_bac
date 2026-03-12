@@ -25,6 +25,7 @@ import leaderboardRoutes from "./routes/leaderboardRoutes.js";
 import journalRoutes from "./routes/journalRoutes.js";
 import breathingRoutes from "./routes/breathingRoutes.js";
 import yogaPoseListRoutes from "./routes/yogaPoseListRoutes.js";
+import formRoutes from "./routes/formRoutes.js";
 
 // Needed for __dirname in ES modules
 import { fileURLToPath } from "url";
@@ -98,6 +99,7 @@ app.use("/api", leaderboardRoutes);
 app.use("/api", journalRoutes);
 app.use("/api/breathing", breathingRoutes); // Breathing exercises routes for mindfulness
 app.use("/api", yogaPoseListRoutes); // Legacy yoga pose list routes preserved from old backend
+app.use("/api", formRoutes); // Dynamic form builder routes
 
 app.get("/health", (req, res) => {
   res.json({

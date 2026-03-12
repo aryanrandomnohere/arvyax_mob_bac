@@ -623,16 +623,26 @@ export const getRandomWeeklyJournalVideo = async (req, res) => {
     ];
     const currentDay = daysOfWeek[new Date().getDay()];
 
-    // Configuration: Set the maximum number of weeks available per day
-    // Adjust this based on how many weeks of content you have stored for each day
-    const MAX_WEEKS_PER_DAY = parseInt(
-      process.env.JOURNAL_VIDEO_MAX_WEEKS || "10",
-      10,
-    );
+    // Configuration: keep week counts per time of day easy to update.
+    const MAX_WEEKS_BY_TIME_OF_DAY = {
+      morning: parseInt(process.env.JOURNAL_VIDEO_MORNING_WEEKS || "2", 10),
+      evening: parseInt(process.env.JOURNAL_VIDEO_EVENING_WEEKS || "1", 10),
+    };
     const JOURNAL_VIDEO_PATH = process.env.JOURNAL_VIDEO_PATH || "Journal"; // Base path in R2 bucket
 
-    // Generate random week number between 1 and MAX_WEEKS_PER_DAY
-    const randomWeek = Math.floor(Math.random() * MAX_WEEKS_PER_DAY) + 1;
+    const normalizedTimeOfDay = timeOfDay.toLowerCase();
+    const configuredWeeks = Number.isFinite(
+      MAX_WEEKS_BY_TIME_OF_DAY[normalizedTimeOfDay],
+    )
+      ? MAX_WEEKS_BY_TIME_OF_DAY[normalizedTimeOfDay]
+      : 1;
+    const totalWeeksForTimeOfDay = Math.max(1, configuredWeeks);
+
+    // If only one week exists (e.g. evening), always return week 1.
+    const randomWeek =
+      totalWeeksForTimeOfDay === 1
+        ? 1
+        : Math.floor(Math.random() * totalWeeksForTimeOfDay) + 1;
 
     // Capitalize timeOfDay for path structure
     const formattedTimeOfDay =
