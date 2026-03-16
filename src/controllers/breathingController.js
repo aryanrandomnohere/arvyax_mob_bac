@@ -20,7 +20,10 @@ const LONG_EXERCISE_TYPES = ["morningBreath"];
  */
 export const getAllBreathing = async (req, res) => {
   try {
-    const breathingExercises = await Breathing.find({ isActive: true }).sort({
+    const breathingExercises = await Breathing.find({ 
+      isActive: true, 
+      type: { $nin: [...SHORT_EXERCISE_TYPES, ...LONG_EXERCISE_TYPES] }
+    }).sort({
       order: 1,
     });
 

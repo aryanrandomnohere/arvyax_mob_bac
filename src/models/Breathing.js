@@ -13,6 +13,7 @@ const BreathingSchema = new Schema(
         "square",
         "infinity",
         "shuffle",
+        "circle",
         "alternateNostril",
         "breatheInNature",
         "deepChestBreathing",
