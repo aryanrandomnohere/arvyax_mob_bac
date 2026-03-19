@@ -7,6 +7,11 @@ const forms = [
     formId: "userProfile",
     formName: "userProfile",
     title: "User Profile Update",
+    priority: 10,
+    scheduling: {
+      type: "onboarding",
+      frequency: "one_time",
+    },
     fields: [
       {
         name: "firstName",
@@ -65,6 +70,12 @@ const forms = [
     formId: "tempTestForm",
     formName: "tempTestForm",
     title: "Temporary Test Form",
+    priority: 50,
+    scheduling: {
+      type: "recurring",
+      frequency: "weekly",
+      dayOfWeek: "monday",
+    },
     fields: [
       {
         name: "fullName",

@@ -68,7 +68,19 @@
     },
     {
       "key": "formSubmissionPayload",
-      "value": "{\n  \"id\": \"{{formUserId}}\",\n  \"metadata\": {\n    \"firstName\": \"John\",\n    \"email\": \"john@example.com\",\n    \"age\": \"25\",\n    \"country\": \"IN\",\n    \"termsAccepted\": true\n  },\n  \"formName\": \"{{formName}}\"\n}"
+      "value": "{\n  \"metadata\": {\n    \"firstName\": \"John\",\n    \"email\": \"john@example.com\",\n    \"age\": \"25\",\n    \"country\": \"IN\",\n    \"termsAccepted\": true\n  },\n  \"formName\": \"{{formName}}\"\n}"
+    },
+    {
+      "key": "notificationId",
+      "value": ""
+    },
+    {
+      "key": "notificationPayload",
+      "value": "{\n  \"banner\": \"https://cdn.example.com/banners/wellness-week.png\",\n  \"title\": \"Weekly Check-in\",\n  \"message\": \"How are you feeling this week?\",\n  \"link\": \"arvyax://forms/weekly-checkin\",\n  \"time\": \"2026-03-16T08:00:00.000Z\",\n  \"priority\": {\n    \"level\": \"HIGH\",\n    \"order\": 20\n  },\n  \"scheduled\": {\n    \"type\": \"recurring\",\n    \"frequency\": \"weekly\",\n    \"dayOfWeek\": \"monday\",\n    \"timeOfDay\": \"08:00\",\n    \"timezone\": \"Asia/Kolkata\",\n    \"isActive\": true\n  }\n}"
+    },
+    {
+      "key": "notificationUpdatePayload",
+      "value": "{\n  \"title\": \"Weekly Check-in Reminder\",\n  \"message\": \"Take 2 minutes to complete your mood check-in.\",\n  \"priority\": {\n    \"level\": \"CRITICAL\",\n    \"order\": 10\n  },\n  \"scheduled\": {\n    \"type\": \"recurring\",\n    \"frequency\": \"weekly\",\n    \"dayOfWeek\": \"monday\",\n    \"timeOfDay\": \"09:30\",\n    \"timezone\": \"Asia/Kolkata\",\n    \"isActive\": true\n  }\n}"
     },
     {
       "key": "test_apple_user_id",
@@ -2488,6 +2500,17 @@
           }
         },
         {
+          "name": "GET /api/forms/pending (auth)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/forms/pending",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "forms", "pending"]
+            }
+          }
+        },
+        {
           "name": "GET /api/forms/:formId",
           "request": {
             "auth": { "type": "noauth" },
@@ -2502,7 +2525,6 @@
         {
           "name": "POST /api/forms/:formId/submit",
           "request": {
-            "auth": { "type": "noauth" },
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
@@ -2513,6 +2535,92 @@
               "raw": "{{baseUrl}}/api/forms/{{formId}}/submit",
               "host": ["{{baseUrl}}"],
               "path": ["api", "forms", "{{formId}}", "submit"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications (/api/notifications)",
+      "item": [
+        {
+          "name": "POST /api/notifications",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () { pm.response.to.have.status(201); });",
+                  "try {",
+                  "  const body = pm.response.json();",
+                  "  const id = body?.notification?.id;",
+                  "  if (id) pm.collectionVariables.set('notificationId', id);",
+                  "} catch (e) {}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{{notificationPayload}}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/notifications",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/notifications/:notificationId",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/{{notificationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "{{notificationId}}"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/notifications/:notificationId",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{{notificationUpdatePayload}}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/{{notificationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "{{notificationId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/notifications/:notificationId",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/{{notificationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "{{notificationId}}"]
             }
           }
         }

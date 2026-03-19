@@ -9,6 +9,7 @@
     "server": "AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE=1 nodemon app.js",
     "seed:badges": "node src/scripts/seedBadges.js",
     "seed:forms": "node src/scripts/seedForm.js",
+    "seed:notifications": "node src/scripts/seedNotifications.js",
     "seed:breathing": "node src/scripts/seedBreathing.js",
     "seed:mindfulness-breathing": "node src/scripts/seedMindfulnessBreathing.js"
   },

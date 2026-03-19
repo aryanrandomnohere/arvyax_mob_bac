@@ -244,6 +244,7 @@ export const updateMyProfile = async (req, res) => {
       return res.status(400).json({ error: "Invalid dob" });
     }
     user.preferences.dob = parsedDob;
+    user.onboardingCompleted = true;
   }
 
   user.profileLastUpdatedAt = new Date();

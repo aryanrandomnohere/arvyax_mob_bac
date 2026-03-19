@@ -73,6 +73,16 @@ const FormDefinitionSchema = new Schema(
       required: true,
       trim: true,
     },
+    priority: {
+      type: Number,
+      default: 100,
+      min: 0,
+      index: true,
+    },
+    scheduling: {
+      type: Schema.Types.Mixed,
+      default: {},
+    },
     fields: {
       type: [FormFieldSchema],
       default: [],

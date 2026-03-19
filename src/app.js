@@ -26,6 +26,7 @@ import journalRoutes from "./routes/journalRoutes.js";
 import breathingRoutes from "./routes/breathingRoutes.js";
 import yogaPoseListRoutes from "./routes/yogaPoseListRoutes.js";
 import formRoutes from "./routes/formRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 
 // Needed for __dirname in ES modules
 import { fileURLToPath } from "url";
@@ -100,6 +101,7 @@ app.use("/api", journalRoutes);
 app.use("/api/breathing", breathingRoutes); // Breathing exercises routes for mindfulness
 app.use("/api", yogaPoseListRoutes); // Legacy yoga pose list routes preserved from old backend
 app.use("/api", formRoutes); // Dynamic form builder routes
+app.use("/api", notificationRoutes); // Notifications routes with scheduling and priority metadata
 
 app.get("/health", (req, res) => {
   res.json({
@@ -130,6 +132,7 @@ app.get("/", (req, res) => {
       life: "/api/life",
       audios: "/api/audios",
       yogaPoseList: "/api/yoga-pose-list",
+      notifications: "/api/notifications",
     },
   });
 });
